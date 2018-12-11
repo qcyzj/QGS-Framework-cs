@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "GatewayServer": {
+      "commandName": "Project"
+    }
+  }
+}
