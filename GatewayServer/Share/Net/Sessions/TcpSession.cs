@@ -177,10 +177,8 @@ namespace Share.Net.Sessions
 
                     if (null != sess.m_Socket)
                     {
-                        if (0 == sess.m_Socket.Available)
+                        if (sess.ProcessSend(m_SendEventArgs))
                         {
-                            sess.ProcessSend(m_SendEventArgs);
-
                             if (!sess.m_Socket.SendAsync(m_SendEventArgs))
                             {
                                 sess.OnAsyncSend(m_SendEventArgs);
@@ -212,12 +210,16 @@ namespace Share.Net.Sessions
             {
                 TcpSession sess = args.UserToken as TcpSession;
 
-                if (null != sess && null != sess.m_Socket)
+                if (sess.ProcessSend(args))
                 {
-                    if (!sess.m_Socket.ReceiveAsync(m_RecvEventArgs))
+                    if (!sess.m_Socket.SendAsync(args))
                     {
-                        sess.OnAsyncReceive(m_RecvEventArgs);
+                        sess.OnAsyncSend(args);
                     }
+                }
+                else if (!sess.m_Socket.ReceiveAsync(m_RecvEventArgs))
+                {
+                    sess.OnAsyncReceive(m_RecvEventArgs);
                 }
             }
             else

@@ -29,9 +29,10 @@ namespace GatewayServer.Gateway
 
 
         public const int UDP_CLI_GW_PROTOCOL_BASE   = 11000;
-        public const int UDP_CLI_GW_REGISTER        = UDP_CLI_GW_PROTOCOL_BASE + 0;
-        public const int UDP_CLI_GW_TEST            = UDP_CLI_GW_PROTOCOL_BASE + 1;
-        public const int UDP_CLI_GW_TEST_2          = UDP_CLI_GW_PROTOCOL_BASE + 2;
+        public const int UDP_CLI_GW_CONNECT         = UDP_CLI_GW_PROTOCOL_BASE + 0;
+        public const int UDP_CLI_GW_AUTH            = UDP_CLI_GW_PROTOCOL_BASE + 1;
+        public const int UDP_CLI_GW_TEST            = UDP_CLI_GW_PROTOCOL_BASE + 2;
+        public const int UDP_CLI_GW_TEST_2          = UDP_CLI_GW_PROTOCOL_BASE + 3;
 
     }
 }

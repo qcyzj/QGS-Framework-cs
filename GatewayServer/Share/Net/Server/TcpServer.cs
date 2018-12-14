@@ -58,14 +58,14 @@ namespace Share.Net.Server
             m_ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
-            IPAddress address = IPAddress.Parse("127.0.0.1");
+            IPAddress address = IPAddress.Parse("10.0.0.7");
             IPEndPoint end_point = new IPEndPoint(address, m_Port);
 
             m_ListenSocket.Bind(end_point);
             m_ListenSocket.Listen(PENDING_CONNECTION_QUEUE);
             m_ListenSocket.Blocking = IsSocketBlocking();
 
-            LogManager.Info("create tcp listen socket, port = " + m_Port.ToString());
+            LogManager.Info("Create tcp server listen socket: " + end_point.ToString());
         }
          
         private void CloseListenSocket()

@@ -1,7 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System.Net;
+using System.Diagnostics;
 
 using Share;
 using Share.Net.Packets;
+using Share.Net.Sessions;
 
 namespace GatewayServer.Gateway.User
 {
@@ -71,44 +73,6 @@ namespace GatewayServer.Gateway.User
         }
 
 
-        public static int PacketProcessUdpRegister(object obj, Packet pkt)
-        {
-            return (int)PacketProcessManager.PACKET_PROC_ERROR.SUCCESS;
-        }
-
-        public static int PacketProcessUdpTest(object obj, Packet pkt)
-        {
-            Debug.Assert(null != obj);
-            Debug.Assert(obj is User);
-            Debug.Assert(Protocol.UDP_CLI_GW_TEST == pkt.GetPacketID());
-
-            User user = (User)obj;
-
-            int value = pkt.GetInt();
-            LogManager.Info("Receive udp test packet: " + value.ToString() + ", UserId = " + user.UserID.ToString());
-
-            user.SendTestPacket(value);
-
-            return (int)PacketProcessManager.PACKET_PROC_ERROR.SUCCESS;
-        }
-
-        public static int PacketProcessUdpTest_2(object obj, Packet pkt)
-        {
-            Debug.Assert(null != obj);
-            Debug.Assert(obj is User);
-            Debug.Assert(Protocol.UDP_CLI_GW_TEST_2 == pkt.GetPacketID());
-
-            User user = (User)obj;
-
-            string value = pkt.GetString();
-            LogManager.Info("Receive udp test 2 packet: " + value + ". UserID = " + user.UserID.ToString());
-
-            user.SendTest_2_Packet(value);
-
-            return (int)PacketProcessManager.PACKET_PROC_ERROR.SUCCESS;
-        }
-
-
         private void SendAuthPacket()
         {
             Packet pkt = PacketManager.Instance.AllocatePacket();
@@ -135,6 +99,106 @@ namespace GatewayServer.Gateway.User
 
             SendPacket(pkt);
             LogManager.Info("Send test 2 packet.");
+        }
+
+
+
+        public static int PaacketProcessUdpConnect(object obj, Packet pkt)
+        {
+            return (int)PacketProcessManager.PACKET_PROC_ERROR.SUCCESS;
+        }
+
+        public static int PacketProcessUdpAuth(object obj, Packet pkt)
+        {
+            Debug.Assert(null != obj);
+            Debug.Assert(obj is User);
+            Debug.Assert(Protocol.UDP_CLI_GW_AUTH == pkt.GetPacketID());
+
+            User user = (User)obj;
+
+            uint user_id = pkt.GetUint();
+            user.SetUserID(user_id);
+
+            UserManager.Instance.AddConnectlessUser(user);
+
+            LogManager.Info("Receive udp auth packet: UserID = " + user.UserID.ToString());
+
+            user.SendUdpTestPacket();
+
+            return (int)PacketProcessManager.PACKET_PROC_ERROR.SUCCESS;
+        }
+
+        public static int PacketProcessUdpTest(object obj, Packet pkt)
+        {
+            Debug.Assert(null != obj);
+            Debug.Assert(obj is User);
+            Debug.Assert(Protocol.UDP_CLI_GW_TEST == pkt.GetPacketID());
+
+            User user = (User)obj;
+
+            int value = pkt.GetInt();
+            Debug.Assert(987654321 == value);
+            LogManager.Info("Receive udp test packet: " + value.ToString() + ", UserID = " + user.UserID.ToString());
+
+            user.SendUdpTest_2_Packet();
+
+            return (int)PacketProcessManager.PACKET_PROC_ERROR.SUCCESS;
+        }
+
+        public static int PacketProcessUdpTest_2(object obj, Packet pkt)
+        {
+            Debug.Assert(null != obj);
+            Debug.Assert(obj is User);
+            Debug.Assert(Protocol.UDP_CLI_GW_TEST_2 == pkt.GetPacketID());
+
+            User user = (User)obj;
+
+            string value = pkt.GetString();
+            Debug.Assert("this is udp test 2 string." == value);
+            LogManager.Info("Receive udp test 2 packet: " + value + ". UserID = " + user.UserID.ToString());
+
+            user.SendUdpTestPacket();
+
+            return (int)PacketProcessManager.PACKET_PROC_ERROR.SUCCESS;
+        }
+
+
+        public void SendUdpAuthPacket()
+        {
+            Debug.Assert(null != m_UserSession);
+            Debug.Assert(m_UserSession is UdpSession);
+
+            UdpSession sess = m_UserSession as UdpSession;
+            IPEndPoint end_point = (IPEndPoint)sess.Socket.LocalEndPoint;
+
+            Packet pkt = PacketManager.Instance.AllocatePacket();
+            pkt.SetPacketID(Protocol.UDP_CLI_GW_AUTH);
+            pkt.AddInt(end_point.Port);
+
+            SendPacket(pkt);
+
+            LogManager.Info("Send udp auth packet. Local port = " + end_point.Port.ToString() + 
+                            " UserID = " + this.m_UserID.ToString());
+        }
+
+        private void SendUdpTestPacket()
+        {
+            Packet pkt = PacketManager.Instance.AllocatePacket();
+            pkt.SetPacketID(Protocol.UDP_CLI_GW_TEST);
+            pkt.AddInt(987654321);
+
+            SendPacket(pkt);
+            LogManager.Info("Send udp test packet. UserID = "  + this.m_UserID.ToString());
+        }
+
+        private void SendUdpTest_2_Packet()
+        {
+            Packet pkt = PacketManager.Instance.AllocatePacket();
+            pkt.SetPacketID(Protocol.UDP_CLI_GW_TEST_2);
+            pkt.AddString("this is udp test 2 string.");
+
+            SendPacket(pkt);
+            LogManager.Info("Send udp test 2 packet. UserID = " + this.m_UserID.ToString());
         }
     }
 }

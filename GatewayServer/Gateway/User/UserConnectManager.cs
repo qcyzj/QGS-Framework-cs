@@ -18,13 +18,13 @@ namespace GatewayServer.Gateway.User
         public void Start()
         {
             m_UserTcpServer.Start();
-            //m_UserUdpServer.Start();
+            m_UserUdpServer.Start();
         }
 
         public void Stop()
         {
             m_UserTcpServer.Stop();
-            //m_UserUdpServer.Stop();
+            m_UserUdpServer.Stop();
         }
     }
 }

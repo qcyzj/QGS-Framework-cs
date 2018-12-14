@@ -7,6 +7,9 @@ namespace Share.Net.Sessions
 {
     public sealed class UdpSession : Session
     {
+        private const string LOCAL_IP_ADDRESS = "10.0.0.7";
+
+
         public UdpSession(int sess_id)
             :base(sess_id)
         {
@@ -17,30 +20,41 @@ namespace Share.Net.Sessions
         }
 
 
-        public Socket CreateUdpSocket(int port, IPEndPoint remote_end_point)
+        public Socket CreateUdpSocket(int local_port, IPEndPoint remote_end_point)
         {
-            m_Socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            //m_Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            //m_Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.port)
-
-            m_Socket.Blocking = false;
-            m_Socket.ReceiveBufferSize = DEFAULT_SOCKET_BUF_SIZE;
-
-            IPAddress address = IPAddress.Loopback;
-            IPEndPoint end_point = new IPEndPoint(address, port);
-
-            m_Socket.Bind(end_point);
-
-            m_Socket.Connect(remote_end_point);
-
-            if (null != m_RecvEventArgs)
+            try
             {
-                m_RecvEventArgs.UserToken = this;
+                m_Socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+                m_Socket.Blocking = false;
+                m_Socket.ReceiveBufferSize = DEFAULT_SOCKET_BUF_SIZE;
+
+                IPAddress address = IPAddress.Parse(LOCAL_IP_ADDRESS);
+                IPEndPoint end_point = new IPEndPoint(address, local_port);
+
+                m_Socket.Bind(end_point);
+
+                m_Socket.Connect(remote_end_point);
+
+                if (null != m_RecvEventArgs)
+                {
+                    m_RecvEventArgs.UserToken = this;
+                    m_RecvEventArgs.RemoteEndPoint = remote_end_point;
+                }
+
+                if (null != m_SendEventArgs)
+                {
+                    m_SendEventArgs.UserToken = this;
+                    m_SendEventArgs.RemoteEndPoint = remote_end_point;
+                }
             }
-
-            if (null != m_SendEventArgs)
+            catch (SocketException sock_ex)
             {
-                m_SendEventArgs.UserToken = this;
+                LogManager.Error("Create udp socket connect error: socket exception = " + sock_ex.ErrorCode.ToString(), sock_ex);
+            }
+            catch (Exception ex)
+            {
+                LogManager.Error("Create udp socket connect error: ", ex);
             }
 
             return m_Socket;
@@ -65,7 +79,7 @@ namespace Share.Net.Sessions
             }
         }
 
-        public void OnAsyncReceiveFrom(SocketAsyncEventArgs args)
+        private void OnAsyncReceiveFrom(SocketAsyncEventArgs args)
         {
             Debug.Assert(m_RecvEventArgs == args);
             Debug.Assert(args.UserToken is UdpSession);
@@ -76,12 +90,12 @@ namespace Share.Net.Sessions
                 {
                     UdpSession sess = args.UserToken as UdpSession;
 
+                    //DebugUdpRecvLog(sess.m_Socket, args);
+
                     sess.ProcessReceive(args);
 
-                    if (0 == sess.m_Socket.Available)
+                    if (sess.ProcessSend(m_SendEventArgs))
                     {
-                        sess.ProcessSend(m_SendEventArgs);
-
                         if (!sess.m_Socket.SendToAsync(m_SendEventArgs))
                         {
                             sess.OnAsyncSendTo(m_SendEventArgs);
@@ -103,7 +117,7 @@ namespace Share.Net.Sessions
             }
         }
 
-        private void OnAsyncSendTo(SocketAsyncEventArgs args)
+        public void OnAsyncSendTo(SocketAsyncEventArgs args)
         {
             Debug.Assert(m_SendEventArgs == args);
             Debug.Assert(args.UserToken is UdpSession);
@@ -112,18 +126,45 @@ namespace Share.Net.Sessions
             {
                 UdpSession sess = args.UserToken as UdpSession;
 
-                if (null != sess && null != sess.m_Socket)
+                //DebugUdpSendLog(sess.m_Socket, args);
+
+                if (sess.ProcessSend(args))
                 {
-                    if (!sess.m_Socket.ReceiveFromAsync(m_RecvEventArgs))
+                    if (!sess.m_Socket.SendToAsync(args))
                     {
-                        sess.OnAsyncReceiveFrom(m_RecvEventArgs);
+                        sess.OnAsyncSendTo(args);
                     }
+                }
+                else if (!sess.m_Socket.ReceiveFromAsync(m_RecvEventArgs))
+                {
+                    sess.OnAsyncReceiveFrom(m_RecvEventArgs);
                 }
             }
             else
             {
                 ProcessError(args);
             }
+        }
+
+
+        private void DebugUdpSendLog(Socket socket, SocketAsyncEventArgs send_args)
+        {
+            Debug.Assert(null != socket);
+            Debug.Assert(null != send_args);
+
+            LogManager.Error("Send Udp. socket local end point = " + socket.LocalEndPoint.ToString());
+            LogManager.Error("Send Udp. args remote end point " + send_args.RemoteEndPoint.ToString() +
+                             " bytes transferred = " + send_args.BytesTransferred);
+        }
+
+        private void DebugUdpRecvLog(Socket socket, SocketAsyncEventArgs recv_args)
+        {
+            Debug.Assert(null != socket);
+            Debug.Assert(null != recv_args);
+
+            LogManager.Error("Recv Udp. socket local end point = " + socket.LocalEndPoint.ToString());
+            LogManager.Error("Recv Udp. args remote end point " + recv_args.RemoteEndPoint.ToString() +
+                             " bytes transferred = " + recv_args.BytesTransferred);
         }
     }
 }

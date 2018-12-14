@@ -54,7 +54,14 @@ namespace GatewayServer.Gateway.User
 
         private void SendPacket(Packet pkt)
         {
-            Debug.Assert(INVALID_USER_ID != m_UserID);
+            if (Protocol.UDP_CLI_GW_AUTH == pkt.GetPacketID())
+            {
+                Debug.Assert(INVALID_USER_ID == m_UserID);
+            }
+            else
+            {
+                Debug.Assert(INVALID_USER_ID != m_UserID);
+            }
 
             if (null != m_UserSession)
             {

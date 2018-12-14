@@ -3,6 +3,7 @@ using System.Threading;
 
 using Share;
 using Share.Net.Buffer;
+using Share.Net.Server;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
@@ -34,6 +35,9 @@ namespace GatewayServer.Gateway.WinService
             LogManager.Initialize(log_dir, log_level, log_lay_out, log_append);
             LogManager.Info("Log manager initialized");
 
+            UdpPortManager.Instance.Initialize();
+            LogManager.Info("Udp port manager initialized!");
+
             BufferManager.Instance.Initialize();
             LogManager.Info("Buffer manager initialized.");
 
@@ -49,8 +53,8 @@ namespace GatewayServer.Gateway.WinService
             UserManager.Instance.Initialize();
             LogManager.Info("User manager initialized.");
 
-            UserConnectManager.Instance.Start();
             LogManager.Info("User connect manager start.");
+            UserConnectManager.Instance.Start();
         }
 
         public void Loop()
@@ -80,6 +84,9 @@ namespace GatewayServer.Gateway.WinService
 
             BufferManager.Instance.Release();
             LogManager.Info("Buffer manager released.");
+
+            UdpPortManager.Instance.Release();
+            LogManager.Info("Udp port manager released.");
 
             LogManager.Release();
         }

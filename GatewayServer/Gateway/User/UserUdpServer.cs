@@ -53,7 +53,7 @@ namespace GatewayServer.Gateway.User
 
                 user.SetUserSession(user_sess);
 
-                UserManager.Instance.AddConnectlessUser(user);
+                user.SendUdpAuthPacket();
             }
             else
             {

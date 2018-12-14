@@ -52,6 +52,8 @@ namespace Share.Net.Sessions
 
 
         public SocketAsyncEventArgs RecvEventArgs { get { return m_RecvEventArgs; } }
+        public SocketAsyncEventArgs SendEventArgs { get { return m_SendEventArgs; } }
+        public Socket Socket { get { return m_Socket; } }
 
 
         public Session(int sess_id)
@@ -124,11 +126,8 @@ namespace Share.Net.Sessions
             Debug.Assert(m_RecvEventArgs == args);
             Debug.Assert(m_ReceiveBuffer.GetCanWriteSize() >= args.BytesTransferred);
 
-            Array.Copy(args.Buffer, 0, m_ReceiveBuffer.Buffer, m_ReceiveBuffer.WriteIndex, args.BytesTransferred);
-            //args.SetBuffer(0, 0);
+            Array.Copy(args.Buffer, args.Offset, m_ReceiveBuffer.Buffer, m_ReceiveBuffer.WriteIndex, args.BytesTransferred);
             m_ReceiveBuffer.AddWriteSize(args.BytesTransferred);
-
-            //LogManager.Error("receive packet. size = " + args.BytesTransferred);
 
             int ret = ProcessPackets();
 
@@ -136,14 +135,14 @@ namespace Share.Net.Sessions
             { }
         }
 
-        protected void ProcessSend(SocketAsyncEventArgs args)
+        public bool ProcessSend(SocketAsyncEventArgs args)
         {
             Debug.Assert(null != args);
             Debug.Assert(m_SendEventArgs == args);
 
             if (m_SendBuffer.GetCanReadSize() <= 0)
             {
-                return;
+                return false;
             }
 
             int buf_size = m_SendBuffer.GetCanReadSize();
@@ -153,8 +152,7 @@ namespace Share.Net.Sessions
             args.SetBuffer(0, buf_size);
 
             m_SendBuffer.AddReadSize(buf_size);
-
-            //LogManager.Error("send packet. size = " + buf_size);
+            return true;
         }
 
         private int ProcessPackets()
@@ -218,7 +216,6 @@ namespace Share.Net.Sessions
             }
 
             PacketManager.Instance.ReleasePacket(pkt);
-            //LogManager.Error("process packet. size = " + pkt_size);
             return ret;
         }
 
@@ -231,6 +228,11 @@ namespace Share.Net.Sessions
 
         protected void ProcessError(SocketAsyncEventArgs args)
         {
+            if (null == args.UserToken)
+            {
+                return;
+            }
+
             Session sess = args.UserToken as Session;
             IPEndPoint localEp = sess.m_Socket.LocalEndPoint as IPEndPoint;
 

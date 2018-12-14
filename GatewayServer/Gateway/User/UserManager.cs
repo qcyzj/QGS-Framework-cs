@@ -17,6 +17,7 @@ namespace GatewayServer.Gateway.User
         private object m_ConnectLock;
 
         private Dictionary<uint, User> m_ConnectlessUserDict;
+        private object m_LessLock;
 
 
         public UserManager()
@@ -30,6 +31,7 @@ namespace GatewayServer.Gateway.User
             m_ConnectLock = new object();
 
             m_ConnectlessUserDict = new Dictionary<uint, User>();
+            m_LessLock = new object();
         }
 
 
@@ -64,17 +66,23 @@ namespace GatewayServer.Gateway.User
 
             m_FreeUserQueue = null;
 
-            foreach (User tmp_user in m_ConnectedUserList)
+            lock (m_ConnectLock)
             {
-                tmp_user.Release();
+                foreach (User tmp_user in m_ConnectedUserList)
+                {
+                    tmp_user.Release();
+                }
             }
 
             m_ConnectedUserList.Clear();
             m_ConnectedUserList = null;
 
-            foreach (User tmp_user in m_AuthedUserDict.Values)
+            lock (m_AuthedLock)
             {
-                tmp_user.Release();
+                foreach (User tmp_user in m_AuthedUserDict.Values)
+                {
+                    tmp_user.Release();
+                }
             }
 
             m_AuthedUserDict.Clear();
@@ -191,15 +199,18 @@ namespace GatewayServer.Gateway.User
         {
             User tmp_user = null;
 
-            if (m_ConnectlessUserDict.TryGetValue(user.UserID, out tmp_user))
+            lock (m_LessLock)
             {
-                Debug.Assert(false);
-                m_ConnectlessUserDict.Remove(user.UserID);
+                if (m_ConnectlessUserDict.TryGetValue(user.UserID, out tmp_user))
+                {
+                    Debug.Assert(false);
+                    m_ConnectlessUserDict.Remove(user.UserID);
 
-                FreeUser(tmp_user);
+                    FreeUser(tmp_user);
+                }
+
+                m_ConnectlessUserDict.Add(user.UserID, user);
             }
-
-            m_ConnectlessUserDict.Add(user.UserID, user);
         }
 
 
@@ -213,7 +224,8 @@ namespace GatewayServer.Gateway.User
             RegisterProcImpl(Protocol.CLI_GW_ENTER_LOGIN, User.PacketProcessEnterLogin);
 
 
-            RegisterProcImpl(Protocol.UDP_CLI_GW_REGISTER, User.PacketProcessUdpRegister);
+            RegisterProcImpl(Protocol.UDP_CLI_GW_CONNECT, User.PaacketProcessUdpConnect);
+            RegisterProcImpl(Protocol.UDP_CLI_GW_AUTH, User.PacketProcessUdpAuth);
             RegisterProcImpl(Protocol.UDP_CLI_GW_TEST, User.PacketProcessUdpTest);
             RegisterProcImpl(Protocol.UDP_CLI_GW_TEST_2, User.PacketProcessUdpTest_2);
         }
