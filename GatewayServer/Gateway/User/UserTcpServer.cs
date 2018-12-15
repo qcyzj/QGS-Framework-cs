@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 
+using Share.Config;
 using Share.Net.Server;
 using Share.Net.Sessions;
 
@@ -8,7 +9,7 @@ namespace GatewayServer.Gateway.User
     public sealed class UserTcpServer : TcpServer
     {
         public UserTcpServer()
-            :base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, 11000)
+            :base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, ConfigManager.TCP_USER_LISTEN_PORT)
         {}
 
 

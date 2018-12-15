@@ -3,13 +3,12 @@ using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
 
+using Share.Config;
+
 namespace Share.Net.Sessions
 {
     public sealed class UdpSession : Session
     {
-        private const string LOCAL_IP_ADDRESS = "10.0.0.7";
-
-
         public UdpSession(int sess_id)
             :base(sess_id)
         {
@@ -29,7 +28,7 @@ namespace Share.Net.Sessions
                 m_Socket.Blocking = false;
                 m_Socket.ReceiveBufferSize = DEFAULT_SOCKET_BUF_SIZE;
 
-                IPAddress address = IPAddress.Parse(LOCAL_IP_ADDRESS);
+                IPAddress address = IPAddress.Parse(ConfigManager.LOCAL_IP_ADDRESS);
                 IPEndPoint end_point = new IPEndPoint(address, local_port);
 
                 m_Socket.Bind(end_point);

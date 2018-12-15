@@ -54,6 +54,7 @@ namespace Share.Net.Sessions
         public SocketAsyncEventArgs RecvEventArgs { get { return m_RecvEventArgs; } }
         public SocketAsyncEventArgs SendEventArgs { get { return m_SendEventArgs; } }
         public Socket Socket { get { return m_Socket; } }
+        public object Object { get { return m_Object; } }
 
 
         public Session(int sess_id)

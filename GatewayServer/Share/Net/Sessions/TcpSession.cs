@@ -7,6 +7,12 @@ namespace Share.Net.Sessions
 {
     public sealed class TcpSession : Session
     {
+        public delegate void OnAsyncConnected(object obj);
+
+
+        private OnAsyncConnected m_ConnectedEvent;
+
+
         public TcpSession(int sess_id)
             :base(sess_id)
         {
@@ -14,6 +20,8 @@ namespace Share.Net.Sessions
             m_RecvEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnIOCompleted);
             m_SendEventArgs = SocketAsyncEventArgsManager.Instance.AllocateEventArgs();
             m_SendEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnIOCompleted);
+
+            m_ConnectedEvent = null;
         }
 
 
@@ -89,6 +97,7 @@ namespace Share.Net.Sessions
 
         public void ConnectAsync(object obj, string ip_address, int port)
         {
+            Debug.Assert(null != m_ConnectedEvent);
             Debug.Assert(null != obj);
 
             try
@@ -119,6 +128,12 @@ namespace Share.Net.Sessions
             }
         }
 
+        public void SetConnectedEvent(OnAsyncConnected evt)
+        {
+            Debug.Assert(null == m_ConnectedEvent);
+            m_ConnectedEvent = evt;
+        }
+
 
         private void OnIOCompleted(object sender, SocketAsyncEventArgs args)
         {
@@ -144,6 +159,7 @@ namespace Share.Net.Sessions
 
         private int OnAsyncConnect(SocketAsyncEventArgs args)
         {
+            Debug.Assert(null != m_ConnectedEvent);
             Debug.Assert(m_SendEventArgs == args);
 
             SESSION_CONNECT_ERROR ret = SESSION_CONNECT_ERROR.SUCCESS;
@@ -151,6 +167,11 @@ namespace Share.Net.Sessions
             if (args.SocketError == SocketError.Success)
             {
                 m_State = SESSION_STATE.CONNECTED;
+
+                TcpSession sess = args.UserToken as TcpSession;
+                Debug.Assert(null != sess);
+
+                m_ConnectedEvent(sess.Object);
             }
             else
             {

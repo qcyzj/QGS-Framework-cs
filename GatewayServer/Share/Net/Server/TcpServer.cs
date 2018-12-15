@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
 
+using Share.Config;
 using Share.Net.Sessions;
 
 namespace Share.Net.Server
@@ -58,7 +59,7 @@ namespace Share.Net.Server
             m_ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
-            IPAddress address = IPAddress.Parse("10.0.0.7");
+            IPAddress address = IPAddress.Parse(ConfigManager.LOCAL_IP_ADDRESS);
             IPEndPoint end_point = new IPEndPoint(address, m_Port);
 
             m_ListenSocket.Bind(end_point);

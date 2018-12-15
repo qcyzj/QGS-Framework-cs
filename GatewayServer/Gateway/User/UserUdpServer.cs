@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 
+using Share.Config;
 using Share.Net.Server;
 using Share.Net.Sessions;
 
@@ -8,7 +9,7 @@ namespace GatewayServer.Gateway.User
     public sealed class UserUdpServer : UdpServer
     {
         public UserUdpServer()
-            :base(12000)
+            :base(ConfigManager.UDP_USER_CONNECT_PORT)
         { }
 
 

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 
+using Share.Config;
 using Share.Net.Server;
 using Share.Net.Sessions;
 
@@ -8,7 +9,7 @@ namespace GatewayServer.Gateway.GameServer
     public sealed class GameTcpServer : TcpServer
     {
         public GameTcpServer()
-            : base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, 12000)
+            : base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, ConfigManager.TCP_GAME_SERVER_LISTEN_PORT)
         { }
 
 

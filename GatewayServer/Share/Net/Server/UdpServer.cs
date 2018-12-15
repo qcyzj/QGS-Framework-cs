@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net.Sockets;
 
+using Share.Config;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
@@ -9,9 +10,6 @@ namespace Share.Net.Server
 {
     public abstract class UdpServer
     {
-        private const string LOCAL_IP_ADDRESS = "10.0.0.7";
-
-
         public enum SOCK_SERV_ERROR : int
         {
             SUCCESS = 0,
@@ -48,7 +46,7 @@ namespace Share.Net.Server
             m_ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
-            IPAddress address = IPAddress.Parse(LOCAL_IP_ADDRESS);
+            IPAddress address = IPAddress.Parse(ConfigManager.LOCAL_IP_ADDRESS);
             IPEndPoint end_point = new IPEndPoint(address, m_Port);
 
             m_ListenSocket.Bind(end_point);
