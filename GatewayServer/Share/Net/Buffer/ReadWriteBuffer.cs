@@ -7,7 +7,7 @@ namespace Share.Net.Buffer
 {
     public class ReadWriteBuffer
     {
-        public const int BUFFER_MAX_SIZE = 20480;
+        public const int BUFFER_MAX_SIZE = 8192;
 
 
         private byte[] m_Buffer;
