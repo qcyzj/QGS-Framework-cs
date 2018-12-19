@@ -52,6 +52,8 @@ namespace GatewayServer.Gateway.GameServers
             if (null != server)
             {
                 TcpSession server_sess = (TcpSession)sess;
+                server_sess.SetObject(server);
+
                 server.SetServerSession(server_sess);
 
                 GameServerManager.Instance.AddConnectedGameServer(server);

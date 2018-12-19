@@ -50,6 +50,7 @@ namespace GameServer.GameServer.Gateway
             GatewayServer gate_server = obj as GatewayServer;
 
             gate_server.SendAuthPacket();
+            gate_server.StartSendAsync();
         }
 
 
@@ -61,6 +62,14 @@ namespace GameServer.GameServer.Gateway
             }
 
             PacketManager.Instance.ReleasePacket(pkt);
+        }
+
+        private void StartSendAsync()
+        {
+            Debug.Assert(m_ServerSession is TcpSession);
+            TcpSession tcp_sess = m_ServerSession as TcpSession;
+
+            tcp_sess.StartSendAsync();
         }
     }
 }

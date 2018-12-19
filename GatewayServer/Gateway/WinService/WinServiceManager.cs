@@ -56,6 +56,9 @@ namespace GatewayServer.Gateway.WinService
             UserManager.Instance.Initialize();
             LogManager.Info("User manager initialized.");
 
+            GameServerManager.Instance.Initialize();
+            LogManager.Info("Game server manager initialized.");
+
             LogManager.Info("Game server connect manager start.");
             GameServerConnectManager.Instance.Start();
 
@@ -78,6 +81,9 @@ namespace GatewayServer.Gateway.WinService
 
             GameServerConnectManager.Instance.Stop();
             LogManager.Info("Game server connect manager stop.");
+
+            GameServerManager.Instance.Release();
+            LogManager.Info("Game server manager released.");
          
             UserManager.Instance.Release();
             LogManager.Info("User manager released.");

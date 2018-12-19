@@ -26,7 +26,11 @@ namespace GatewayServer.Gateway.GameServers
 
         public void Release()
         {
-            m_ServerSession.Release();
+            if (null != m_ServerSession)
+            {
+                m_ServerSession.Release();
+            }
+
             m_ServerSession = null;
             m_GameeServerID = INVALID_GAME_SERVER_ID;
         }

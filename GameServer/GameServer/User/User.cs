@@ -20,7 +20,7 @@ namespace GameServer.GameServer.User
 
         public void Release()
         {
-            Debug.Assert(INVALID_USER_ID != m_UserID);
+            //Debug.Assert(INVALID_USER_ID != m_UserID);
             m_UserID = INVALID_USER_ID;
         }
 
