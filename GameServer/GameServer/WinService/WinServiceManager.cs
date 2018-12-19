@@ -1,20 +1,23 @@
-﻿using System;
+﻿
+
+using System;
 using System.Threading;
 
 using Share;
 using Share.Net.Buffer;
-using Share.Net.Server;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
-using GatewayServer.Gateway.Users;
-using GatewayServer.Gateway.GameServers;
+using GameServer.GameServer.User;
+using GameServer.GameServer.Gateway;
 
-namespace GatewayServer.Gateway.WinService
+namespace GameServer.GameServer.WinService
 {
     public class WinServiceManager : Singleton<WinServiceManager>
     {
         private bool m_IsActive;
+
+        public object Threed { get; private set; }
 
         public WinServiceManager()
         {
@@ -36,31 +39,25 @@ namespace GatewayServer.Gateway.WinService
                              (int)LogManager.LOG_APPENDER.TRACE;
 
             LogManager.Initialize(log_dir, log_level, log_lay_out, log_append);
-            LogManager.Info("Log manager initialized");
-
-            UdpPortManager.Instance.Initialize();
-            LogManager.Info("Udp port manager initialized!");
+            LogManager.Info("Log Manager initialized.");
 
             BufferManager.Instance.Initialize();
             LogManager.Info("Buffer manager initialized.");
 
             SocketAsyncEventArgsManager.Instance.Initialize();
-            LogManager.Info("Socket async event args manager initialized.");
+            LogManager.Info("Socket aysnc event args manager initialized.");
 
             SessionManager.Instance.Initialize();
-            LogManager.Info("Session manager initialized.");
-            
+            LogManager.Info("Session mananger initialized.");
+
             PacketManager.Instance.Initialize();
             LogManager.Info("Packet manager initialized.");
 
             UserManager.Instance.Initialize();
             LogManager.Info("User manager initialized.");
 
-            LogManager.Info("Game server connect manager start.");
-            GameServerConnectManager.Instance.Start();
-
-            LogManager.Info("User connect manager start.");
-            UserConnectManager.Instance.Start();
+            GatewayServerManager.Instance.Start();
+            LogManager.Info("Gateway server manager start.");
         }
 
         public void Loop()
@@ -73,12 +70,9 @@ namespace GatewayServer.Gateway.WinService
 
         public void Exit()
         {
-            UserConnectManager.Instance.Stop();
-            LogManager.Info("User connect manager stop.");
+            GatewayServerManager.Instance.Stop();
+            LogManager.Info("Gateway server manager stop.");
 
-            GameServerConnectManager.Instance.Stop();
-            LogManager.Info("Game server connect manager stop.");
-         
             UserManager.Instance.Release();
             LogManager.Info("User manager released.");
 
@@ -89,20 +83,17 @@ namespace GatewayServer.Gateway.WinService
             LogManager.Info("Session manager released.");
 
             SocketAsyncEventArgsManager.Instance.Release();
-            LogManager.Info("Socket async event args manager released.");
+            LogManager.Info("Socket async event args mananer released.");
 
             BufferManager.Instance.Release();
             LogManager.Info("Buffer manager released.");
-
-            UdpPortManager.Instance.Release();
-            LogManager.Info("Udp port manager released.");
 
             LogManager.Release();
         }
 
 
         private void CancelHandle(object sender, ConsoleCancelEventArgs e)
-        {            
+        {
             e.Cancel = true;
             SetInactive();
         }
@@ -115,22 +106,13 @@ namespace GatewayServer.Gateway.WinService
 
         private void ManagerRemoveObjectFunc(Session sess)
         {
-            if (sess.Object is User)
+            if (sess.Object is GatewayServer)
             {
-                User user = sess.Object as User;
+                GatewayServer gate_server = sess.Object as GatewayServer;
 
-                if (null != user)
+                if (null != gate_server)
                 {
-                    UserManager.Instance.RemoveUser(user);
-                }
-            }
-            else if (sess.Object is GameServer)
-            {
-                GameServer game_server = sess.Object as GameServer;
 
-                if (null != game_server)
-                {
-                    GameServerManager.Instance.RemoveGameServer(game_server);
                 }
             }
         }

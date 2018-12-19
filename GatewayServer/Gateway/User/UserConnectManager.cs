@@ -1,6 +1,6 @@
 ﻿using Share;
 
-namespace GatewayServer.Gateway.User
+namespace GatewayServer.Gateway.Users
 {
     public sealed class UserConnectManager : Singleton<UserConnectManager>
     {

@@ -4,7 +4,7 @@ using Share.Net.Buffer;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
-using GatewayServer.Gateway.User;
+using GatewayServer.Gateway.Users;
 
 namespace GatewayServer.Test
 {

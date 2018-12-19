@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
 
+using Share.Net.Packets;
 using Share.Net.Sessions;
 
-namespace GatewayServer.Gateway.GameServer
+namespace GatewayServer.Gateway.GameServers
 {
-    public sealed class GameServer
+    public sealed partial class GameServer
     {
         public const uint INVALID_GAME_SERVER_ID = 0;
 
@@ -35,6 +36,23 @@ namespace GatewayServer.Gateway.GameServer
         {
             Debug.Assert(null != server_sess);
             m_ServerSession = server_sess;
+        }
+
+
+        public void SetServerID(uint game_server_id)
+        {
+            m_GameeServerID = game_server_id;
+        }
+
+
+        private void SendPacket(Packet pkt)
+        {
+            if (null != m_ServerSession)
+            {
+                m_ServerSession.SendPacket(pkt);
+            }
+
+            PacketManager.Instance.ReleasePacket(pkt);
         }
     }
 }

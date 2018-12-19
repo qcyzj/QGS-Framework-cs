@@ -6,10 +6,11 @@ namespace GatewayServer.Gateway
         public const short GW_LS_PROTOCOL_BASE = 0;
 
 
-        public const short GS_GW_PROTOCOL_BASE = 1000;
-        
+        public const int GS_GW_PROTOCOL_BASE    = 1000;
+        public const int GS_GW_AUTH             = GS_GW_PROTOCOL_BASE + 1;
 
-        public const short GS_GC_PROTOCOL_BASE = 2000;
+
+        public const short GS_GC_PROTOCOL_BASE  = 2000;
 
 
 

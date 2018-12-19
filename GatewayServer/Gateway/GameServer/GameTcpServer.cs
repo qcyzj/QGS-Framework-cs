@@ -4,7 +4,7 @@ using Share.Config;
 using Share.Net.Server;
 using Share.Net.Sessions;
 
-namespace GatewayServer.Gateway.GameServer
+namespace GatewayServer.Gateway.GameServers
 {
     public sealed class GameTcpServer : TcpServer
     {
@@ -35,6 +35,9 @@ namespace GatewayServer.Gateway.GameServer
 
         protected override void FreeSession(Session sess)
         {
+            Debug.Assert(null != sess);
+            Debug.Assert(sess is TcpSession);
+            SessionManager.Instance.FreeServerSession(sess);
         }
 
 
@@ -51,7 +54,7 @@ namespace GatewayServer.Gateway.GameServer
                 TcpSession server_sess = (TcpSession)sess;
                 server.SetServerSession(server_sess);
 
-                GameServerManager.Instance.AddGameServer(server);
+                GameServerManager.Instance.AddConnectedGameServer(server);
             }
             else
             {

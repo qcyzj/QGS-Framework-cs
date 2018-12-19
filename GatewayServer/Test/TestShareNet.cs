@@ -8,7 +8,7 @@ using Share.Net.Packets;
 using Share.Net.Sessions;
 
 using GatewayServer.Gateway;
-using GatewayServer.Gateway.User;
+using GatewayServer.Gateway.Users;
 
 namespace GatewayServer.Test
 {

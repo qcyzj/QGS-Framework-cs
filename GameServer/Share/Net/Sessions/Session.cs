@@ -6,6 +6,8 @@ using System.Net.Sockets;
 using Share.Net.Buffer;
 using Share.Net.Packets;
 
+using GameServer.GameServer.User;
+
 namespace Share.Net.Sessions
 {
     public abstract class Session
@@ -251,20 +253,6 @@ namespace Share.Net.Sessions
             if (null != sess)
             {
                 m_RemoveObjectFunc(sess);
-
-                //if (sess.m_Object is User)
-                //{
-                //    User user = sess.m_Object as User;
-
-                //    if (null != user)
-                //    {
-                //        UserManager.Instance.RemoveUser(user);
-                //    }
-                //}
-                //else 
-                //{
-
-                //}
 
                 sess.CloseSocket();
             }

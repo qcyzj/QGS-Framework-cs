@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Share;
 using Share.Net.Sessions;
 
-using GatewayServer.Gateway.User;
+using GatewayServer.Gateway.Users;
 
 namespace GatewayServer.Test
 {

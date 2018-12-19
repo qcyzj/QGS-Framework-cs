@@ -5,7 +5,7 @@ using Share;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
-namespace GatewayServer.Gateway.User
+namespace GatewayServer.Gateway.Users
 {
     public partial class User
     {

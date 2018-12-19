@@ -4,7 +4,7 @@ using Share.Config;
 using Share.Net.Server;
 using Share.Net.Sessions;
 
-namespace GatewayServer.Gateway.User
+namespace GatewayServer.Gateway.Users
 {
     public sealed class UserUdpServer : UdpServer
     {

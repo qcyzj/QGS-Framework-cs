@@ -5,7 +5,7 @@ using Share;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
-namespace GatewayServer.Gateway.User
+namespace GatewayServer.Gateway.Users
 {
     public class UserManager : Singleton<UserManager>
     {
@@ -162,7 +162,6 @@ namespace GatewayServer.Gateway.User
 
                 m_AuthedUserDict.Add(user.UserID, user);
             }
-
 
             LogManager.Debug("Add authed user. UserID = " + user.UserID);
         }
