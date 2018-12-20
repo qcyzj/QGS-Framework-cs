@@ -3,14 +3,14 @@
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
-namespace GameServer.GameServer.Gateway
+namespace GatewayServer.Gateway.AccountServer
 {
-    public sealed partial class GatewayServer
+    public sealed partial class AccountServer
     {
         private Session m_ServerSession;
 
 
-        public GatewayServer()
+        public AccountServer()
         {
             m_ServerSession = null;
         }
@@ -32,25 +32,25 @@ namespace GameServer.GameServer.Gateway
         }
 
 
-        public void ConnectToGatewayAsync(string ip_addr, int port)
+        public void ConnectToAccountServerAsync(string ip_addr, int port)
         {
             Debug.Assert(m_ServerSession is TcpSession);
             TcpSession tcp_sess = m_ServerSession as TcpSession;
 
-            tcp_sess.SetConnectedEvent(OnAsyncConnected);
+            tcp_sess.SetConnectedEvent(OnAsynConnected);
 
             tcp_sess.ConnectAsync(this, ip_addr, port);
         }
 
-        public static void OnAsyncConnected(object obj)
+        public static void OnAsynConnected(object obj)
         {
             Debug.Assert(null != obj);
-            Debug.Assert(obj is GatewayServer);
+            Debug.Assert(obj is AccountServer);
 
-            GatewayServer gate_server = obj as GatewayServer;
+            AccountServer account_server = obj as AccountServer;
 
-            gate_server.SendAuthPacket();
-            gate_server.StartSendAsync();
+            account_server.SendAuthPacket();
+            account_server.StartSendAsync();
         }
 
 

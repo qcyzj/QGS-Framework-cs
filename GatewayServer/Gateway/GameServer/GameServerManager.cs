@@ -76,6 +76,7 @@ namespace GatewayServer.Gateway.GameServers
             }
 
             m_AuthedGameServerDict.Clear();
+            m_AuthedGameServerDict = null;
         }
 
         private void DynamicAllocateGameServer(int game_server_num)

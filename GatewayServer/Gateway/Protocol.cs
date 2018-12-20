@@ -3,8 +3,8 @@ namespace GatewayServer.Gateway
 {
     public static class Protocol
     {
-        public const short GW_LS_PROTOCOL_BASE = 0;
-
+        public const int GW_ACT_PROTOCOL_BASE   = 0;
+        public const int GW_ACT_AUTH            = GW_ACT_PROTOCOL_BASE + 1;
 
         public const int GS_GW_PROTOCOL_BASE    = 1000;
         public const int GS_GW_AUTH             = GS_GW_PROTOCOL_BASE + 1;

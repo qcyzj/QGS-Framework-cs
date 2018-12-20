@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using System.Diagnostics;
 
 using Share;
 using Share.Net.Buffer;
@@ -17,7 +18,6 @@ namespace GameServer.GameServer.WinService
     {
         private bool m_IsActive;
 
-        public object Threed { get; private set; }
 
         public WinServiceManager()
         {
@@ -39,6 +39,7 @@ namespace GameServer.GameServer.WinService
                              (int)LogManager.LOG_APPENDER.TRACE;
 
             LogManager.Initialize(log_dir, log_level, log_lay_out, log_append);
+            LogManager.Debug("Game Server Start...");
             LogManager.Info("Log Manager initialized.");
 
             BufferManager.Instance.Initialize();
@@ -56,6 +57,7 @@ namespace GameServer.GameServer.WinService
             UserManager.Instance.Initialize();
             LogManager.Info("User manager initialized.");
 
+
             GatewayServerManager.Instance.Start();
             LogManager.Info("Gateway server manager start.");
         }
@@ -72,6 +74,7 @@ namespace GameServer.GameServer.WinService
         {
             GatewayServerManager.Instance.Stop();
             LogManager.Info("Gateway server manager stop.");
+
 
             UserManager.Instance.Release();
             LogManager.Info("User manager released.");
@@ -112,7 +115,7 @@ namespace GameServer.GameServer.WinService
 
                 if (null != gate_server)
                 {
-
+                    Debug.Assert(false);
                 }
             }
         }

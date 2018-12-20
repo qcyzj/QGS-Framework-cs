@@ -7,7 +7,7 @@ namespace GatewayServer.Gateway.GameServers
 {
     public sealed partial class GameServer
     {
-        public const uint INVALID_GAME_SERVER_ID = 0;
+        private const uint INVALID_GAME_SERVER_ID = 0;
 
 
         private Session m_ServerSession;
@@ -45,6 +45,7 @@ namespace GatewayServer.Gateway.GameServers
 
         public void SetServerID(uint game_server_id)
         {
+            Debug.Assert(INVALID_GAME_SERVER_ID == m_GameeServerID);
             m_GameeServerID = game_server_id;
         }
 

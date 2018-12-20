@@ -4,7 +4,7 @@ using Share.Net.Packets;
 
 namespace GameServer.GameServer.Gateway
 {
-    public class GatewayServerManager : Singleton<GatewayServerManager>
+    public sealed class GatewayServerManager : Singleton<GatewayServerManager>
     {
         private GatewayServer m_GatewayServer;
 

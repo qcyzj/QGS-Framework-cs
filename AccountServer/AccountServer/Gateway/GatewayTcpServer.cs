@@ -4,12 +4,12 @@ using Share.Config;
 using Share.Net.Server;
 using Share.Net.Sessions;
 
-namespace GatewayServer.Gateway.GameServers
+namespace AccountServer.AccountServer.Gateway
 {
-    public sealed class GameTcpServer : TcpServer
+   public sealed class GatewayTcpServer : TcpServer
     {
-        public GameTcpServer()
-            : base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, ConfigManager.TCP_GAME_SERVER_LISTEN_PORT)
+        public GatewayTcpServer()
+            :base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, ConfigManager.TCP_GATEWAY_SERVER_LISTEN_PORT)
         { }
 
 
@@ -47,7 +47,7 @@ namespace GatewayServer.Gateway.GameServers
             Debug.Assert(null != sess);
             Debug.Assert(sess is TcpSession);
 
-            GameServer server = GameServerManager.Instance.AllocateGameServer();
+            GatewayServer server = GatewayServerManager.Instance.AllocateGatewayServer();
 
             if (null != server)
             {
@@ -56,7 +56,7 @@ namespace GatewayServer.Gateway.GameServers
 
                 server.SetServerSession(server_sess);
 
-                GameServerManager.Instance.AddConnectedGameServer(server);
+                GatewayServerManager.Instance.AddConnectedGatewayServer(server);
             }
             else
             {

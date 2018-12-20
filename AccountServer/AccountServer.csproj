@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Gateway\WinService\" />
+    <Folder Include="Share\" />
     <Folder Include="Test\" />
   </ItemGroup>
 
