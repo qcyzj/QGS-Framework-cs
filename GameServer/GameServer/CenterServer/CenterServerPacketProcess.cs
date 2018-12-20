@@ -1,21 +1,20 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using Share;
 using Share.Config;
 using Share.Net.Packets;
 
-namespace GameServer.GameServer.Gateway
+namespace GameServer.GameServer.CenterServer
 {
-    public partial class GatewayServer
+    public partial class CenterServer
     {
         public static int PacketProcessAuth(object obj, Packet pkt)
         {
             Debug.Assert(null != obj);
-            Debug.Assert(obj is GatewayServer);
-            Debug.Assert(Protocol.GS_GW_AUTH == pkt.GetPacketID());
+            Debug.Assert(obj is CenterServer);
+            Debug.Assert(Protocol.GS_CNT_AUTH == pkt.GetPacketID());
 
-            GatewayServer gate_server = obj as GatewayServer;
+            CenterServer center_server = obj as CenterServer;
 
             uint game_server_id = pkt.GetUint();
             Debug.Assert(ConfigManager.GAME_SERVER_ID == game_server_id);
@@ -29,7 +28,7 @@ namespace GameServer.GameServer.Gateway
         private void SendAuthPacket()
         {
             Packet pkt = PacketManager.Instance.AllocatePacket();
-            pkt.SetPacketID(Protocol.GS_GW_AUTH);
+            pkt.SetPacketID(Protocol.GS_CNT_AUTH);
             pkt.AddUint(ConfigManager.GAME_SERVER_ID);
 
             SendPacket(pkt);

@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Threading;
 
 using Share;
+using System.Threading;
+
 using Share.Net.Buffer;
-using Share.Net.Server;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
-using GatewayServer.Gateway.Users;
-using GatewayServer.Gateway.GameServers;
-using GatewayServer.Gateway.AccountServer;
+using CenterServer.CenterServer.GameServers;
 
-namespace GatewayServer.Gateway.WinService
+namespace CenterServer.CenterServer.WinService
 {
     public class WinServiceManager : Singleton<WinServiceManager>
     {
@@ -38,11 +36,8 @@ namespace GatewayServer.Gateway.WinService
                              (int)LogManager.LOG_APPENDER.TRACE;
 
             LogManager.Initialize(log_dir, log_level, log_lay_out, log_append);
-            LogManager.Debug("Gateway Server Start...");
+            LogManager.Debug("Center Server Start...");
             LogManager.Info("Log manager initialized.");
-
-            UdpPortManager.Instance.Initialize();
-            LogManager.Info("Udp port manager initialized.");
 
             BufferManager.Instance.Initialize();
             LogManager.Info("Buffer manager initialized.");
@@ -52,12 +47,9 @@ namespace GatewayServer.Gateway.WinService
 
             SessionManager.Instance.Initialize();
             LogManager.Info("Session manager initialized.");
-            
-            PacketManager.Instance.Initialize();
-            LogManager.Info("Packet manager initialized.");
 
-            UserManager.Instance.Initialize();
-            LogManager.Info("User manager initialized.");
+            PacketManager.Instance.Initialize();
+            LogManager.Info("Packet mananger initialized.");
 
             GameServerManager.Instance.Initialize();
             LogManager.Info("Game server manager initialized.");
@@ -65,12 +57,6 @@ namespace GatewayServer.Gateway.WinService
 
             LogManager.Info("Game server connect manager start.");
             GameServerConnectManager.Instance.Start();
-
-            LogManager.Info("User connect manager start.");
-            UserConnectManager.Instance.Start();
-
-            AccountServerManager.Instance.Start();
-            LogManager.Info("Account server manager start.");
         }
 
         public void Loop()
@@ -83,24 +69,15 @@ namespace GatewayServer.Gateway.WinService
 
         public void Exit()
         {
-            AccountServerManager.Instance.Stop();
-            LogManager.Info("Account server manager stop.");
-
-            UserConnectManager.Instance.Stop();
-            LogManager.Info("User connect manager stop.");
-
             GameServerConnectManager.Instance.Stop();
             LogManager.Info("Game server connect manager stop.");
 
 
             GameServerManager.Instance.Release();
             LogManager.Info("Game server manager released.");
-         
-            UserManager.Instance.Release();
-            LogManager.Info("User manager released.");
 
             PacketManager.Instance.Release();
-            LogManager.Info("Packet manager released.");
+            LogManager.Info("Packet mananger released.");
 
             SessionManager.Instance.Release();
             LogManager.Info("Session manager released.");
@@ -111,15 +88,12 @@ namespace GatewayServer.Gateway.WinService
             BufferManager.Instance.Release();
             LogManager.Info("Buffer manager released.");
 
-            UdpPortManager.Instance.Release();
-            LogManager.Info("Udp port manager released.");
-
             LogManager.Release();
         }
 
-
+        
         private void CancelHandle(object sender, ConsoleCancelEventArgs e)
-        {            
+        {
             e.Cancel = true;
             SetInactive();
         }
@@ -132,16 +106,7 @@ namespace GatewayServer.Gateway.WinService
 
         private void ManagerRemoveObjectFunc(Session sess)
         {
-            if (sess.Object is User)
-            {
-                User user = sess.Object as User;
-
-                if (null != user)
-                {
-                    UserManager.Instance.RemoveUser(user);
-                }
-            }
-            else if (sess.Object is GameServer)
+            if (sess.Object is GameServer)
             {
                 GameServer game_server = sess.Object as GameServer;
 
@@ -149,6 +114,7 @@ namespace GatewayServer.Gateway.WinService
                 {
                     GameServerManager.Instance.RemoveGameServer(game_server);
                 }
+
             }
         }
     }

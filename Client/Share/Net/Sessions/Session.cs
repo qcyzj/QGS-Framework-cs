@@ -86,7 +86,11 @@ namespace Share.Net.Sessions
 
             if (null != m_Socket)
             {
-                m_Socket.Shutdown(SocketShutdown.Both);
+                if (m_Socket.Connected)
+                {
+                    m_Socket.Shutdown(SocketShutdown.Both);
+                }
+
                 m_Socket.Close();
                 m_Socket = null;
             }

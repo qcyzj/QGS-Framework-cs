@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Share\" />
     <Folder Include="Test\" />
+    <Folder Include="Share\" />
   </ItemGroup>
 
 </Project>

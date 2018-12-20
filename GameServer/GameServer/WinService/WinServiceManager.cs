@@ -11,6 +11,7 @@ using Share.Net.Sessions;
 
 using GameServer.GameServer.User;
 using GameServer.GameServer.Gateway;
+using GameServer.GameServer.CenterServer;
 
 namespace GameServer.GameServer.WinService
 {
@@ -60,6 +61,9 @@ namespace GameServer.GameServer.WinService
 
             GatewayServerManager.Instance.Start();
             LogManager.Info("Gateway server manager start.");
+
+            CenterServerManager.Instance.Start();
+            LogManager.Info("Center server manager start.");
         }
 
         public void Loop()
@@ -72,6 +76,9 @@ namespace GameServer.GameServer.WinService
 
         public void Exit()
         {
+            CenterServerManager.Instance.Stop();
+            LogManager.Info("Center server manager stop.");
+
             GatewayServerManager.Instance.Stop();
             LogManager.Info("Gateway server manager stop.");
 
