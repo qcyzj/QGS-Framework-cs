@@ -5,8 +5,8 @@ namespace Share.Net.Sessions
 {
     public sealed class SessionManager : Singleton<SessionManager>
     {
-        public const int USER_TCP_SESSION_MAX_NUM = 100;
-        public const int USER_UDP_SESSION_MAX_NUM = 100;
+        public const int USER_TCP_SESSION_MAX_NUM = 0;
+        public const int USER_UDP_SESSION_MAX_NUM = 0;
         public const int SERVER_TCP_SESSION_MAX_NUM = 10;
 
 
