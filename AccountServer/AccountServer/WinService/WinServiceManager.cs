@@ -1,15 +1,15 @@
 ﻿
 using System;
 using System.Threading;
-using System.Diagnostics;
 
 using Share;
-using Share.Net.Sessions;
-
+using Share.Config;
 using Share.Net.Buffer;
 using Share.Net.Packets;
+using Share.Net.Sessions;
 
 using AccountServer.AccountServer.Gateway;
+using AccountServer.AccountServer.ID;
 
 namespace AccountServer.AccountServer.WinService
 {
@@ -54,6 +54,9 @@ namespace AccountServer.AccountServer.WinService
 
             GatewayServerManager.Instance.Initialize();
             LogManager.Info("Game server manager initialized.");
+
+            IDGenerator.Instance.Init(ConfigManager.ID_GENERATOR_WORKER_ID, ConfigManager.ID_GENERATOR_DATACENTER_ID);
+            LogManager.Info("ID generator initialized.");
 
 
             LogManager.Info("Gateway server connect manager start.");

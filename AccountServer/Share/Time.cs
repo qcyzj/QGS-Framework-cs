@@ -32,6 +32,11 @@ namespace Share
             return cur.Date.AddDays(1);
         }
 
+        public static long GetCurMilliseconds()
+        {
+            return (long)(DateTime.UtcNow - min_time).TotalMilliseconds;
+        }
+
 
         public static bool IsInSameDay(DateTime left, DateTime right)
         {
@@ -42,7 +47,5 @@ namespace Share
         {
             return IsInSameDay(left.AddDays(-(int)left.DayOfWeek), right.AddDays(-(int)right.DayOfWeek));
         }
-
-
     }
 }
