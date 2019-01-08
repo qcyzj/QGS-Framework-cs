@@ -8,8 +8,8 @@ using Share.Net.Buffer;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
-using AccountServer.AccountServer.Gateway;
 using AccountServer.AccountServer.ID;
+using AccountServer.AccountServer.Gateway;
 
 namespace AccountServer.AccountServer.WinService
 {

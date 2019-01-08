@@ -17,7 +17,7 @@ namespace GameServer.GameServer.CenterServer
             CenterServer center_server = obj as CenterServer;
 
             uint game_server_id = pkt.GetUint();
-            Debug.Assert(ConfigManager.GAME_SERVER_ID == game_server_id);
+            Debug.Assert(ConfigManager.Instance.GAME_SERVER_ID == game_server_id);
 
             LogManager.Info("Receive auth packet: Game server ID = " + game_server_id.ToString());
 
@@ -29,7 +29,7 @@ namespace GameServer.GameServer.CenterServer
         {
             Packet pkt = PacketManager.Instance.AllocatePacket();
             pkt.SetPacketID(Protocol.GS_CNT_AUTH);
-            pkt.AddUint(ConfigManager.GAME_SERVER_ID);
+            pkt.AddUint(ConfigManager.Instance.GAME_SERVER_ID);
 
             SendPacket(pkt);
         }

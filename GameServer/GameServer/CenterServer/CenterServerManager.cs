@@ -21,8 +21,8 @@ namespace GameServer.GameServer.CenterServer
 
             m_CenterServer.Initialize();
 
-            m_CenterServer.ConnectToCenterServerAsync(ConfigManager.LOCAL_IP_ADDRESS,
-                                                      ConfigManager.TCP_CENTER_SERVER_CONNECT_PORT);
+            m_CenterServer.ConnectToCenterServerAsync(ConfigManager.Instance.LOCAL_IP_ADDRESS,
+                                                      ConfigManager.Instance.TCP_CENTER_SERVER_CONNECT_PORT);
 
             ValidInitializeOnce();
         }

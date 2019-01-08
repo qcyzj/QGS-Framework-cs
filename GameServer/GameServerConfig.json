@@ -1,0 +1,6 @@
+﻿{
+  "GameServerIPAddr": "127.0.0.1",
+  "TcpGatewayServerConnectPort": 13000,
+  "TcpCenterServerConnectPort": 15000,
+  "GameServerID": 100
+}

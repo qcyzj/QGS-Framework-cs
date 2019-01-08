@@ -21,8 +21,8 @@ namespace GameServer.GameServer.Gateway
 
             m_GatewayServer.Initialize();
 
-            m_GatewayServer.ConnectToGatewayAsync(ConfigManager.LOCAL_IP_ADDRESS,
-                                                  ConfigManager.TCP_GATEWAY_SERVER_CONNECT_PORT);
+            m_GatewayServer.ConnectToGatewayAsync(ConfigManager.Instance.LOCAL_IP_ADDRESS,
+                                                  ConfigManager.Instance.TCP_GATEWAY_SERVER_CONNECT_PORT);
 
             ValidInitializeOnce();
         }

@@ -3,12 +3,12 @@
 using Share;
 using System.Threading;
 
+using Share.Config;
 using Share.Net.Buffer;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
 using CenterServer.CenterServer.GameServers;
-using Share.Config;
 
 namespace CenterServer.CenterServer.WinService
 {
