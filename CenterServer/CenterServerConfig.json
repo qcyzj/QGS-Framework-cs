@@ -1,0 +1,4 @@
+﻿{
+  "CenterServerIPAddr": "127.0.0.1",
+  "TcpCenterServerListenPort": 15000
+}

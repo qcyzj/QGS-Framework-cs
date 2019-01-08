@@ -8,6 +8,7 @@ using Share.Net.Packets;
 using Share.Net.Sessions;
 
 using CenterServer.CenterServer.GameServers;
+using Share.Config;
 
 namespace CenterServer.CenterServer.WinService
 {
@@ -41,6 +42,9 @@ namespace CenterServer.CenterServer.WinService
 
             BufferManager.Instance.Initialize();
             LogManager.Info("Buffer manager initialized.");
+
+            ConfigManager.Instance.Initialize();
+            LogManager.Info("Config manager initialized.");
 
             SocketAsyncEventArgsManager.Instance.Initialize();
             LogManager.Info("Socket async event args manager initialized.");

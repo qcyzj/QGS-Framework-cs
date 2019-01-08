@@ -9,7 +9,8 @@ namespace CenterServer.CenterServer.GameServers
     public sealed class GameTcpServer : TcpServer
     {
         public GameTcpServer()
-            :base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, ConfigManager.TCP_CENTER_SERVER_LISTEN_PORT)
+            :base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, 
+                  ConfigManager.Instance.TCP_CENTER_SERVER_LISTEN_PORT)
         { }
 
 
