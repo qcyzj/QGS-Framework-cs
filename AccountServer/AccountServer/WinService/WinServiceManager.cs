@@ -40,6 +40,9 @@ namespace AccountServer.AccountServer.WinService
             LogManager.Debug("Account Server Start...");
             LogManager.Info("Log manager initialized");
 
+            ConfigManager.Instance.Initialize();
+            LogManager.Info("Config manager initialized.");
+
             BufferManager.Instance.Initialize();
             LogManager.Info("Buffer manager initialized.");
 
@@ -55,7 +58,8 @@ namespace AccountServer.AccountServer.WinService
             GatewayServerManager.Instance.Initialize();
             LogManager.Info("Game server manager initialized.");
 
-            IDGenerator.Instance.Init(ConfigManager.ID_GENERATOR_WORKER_ID, ConfigManager.ID_GENERATOR_DATACENTER_ID);
+            IDGenerator.Instance.Init(ConfigManager.Instance.ID_GENERATOR_WORKER_ID, 
+                                      ConfigManager.Instance.ID_GENERATOR_DATACENTER_ID);
             LogManager.Info("ID generator initialized.");
 
 

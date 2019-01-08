@@ -34,7 +34,7 @@ namespace Share.Config
             m_Config = null;
         }
 
-        public void Init()
+        public void Initialize()
         {
             string json_file = Path.Combine(Folder.GetCurrentDir(), CONFIG_JSON_FILE);
 

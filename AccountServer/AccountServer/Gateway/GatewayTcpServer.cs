@@ -9,7 +9,8 @@ namespace AccountServer.AccountServer.Gateway
    public sealed class GatewayTcpServer : TcpServer
     {
         public GatewayTcpServer()
-            :base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, ConfigManager.TCP_GATEWAY_SERVER_LISTEN_PORT)
+            :base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, 
+                  ConfigManager.Instance.TCP_GATEWAY_SERVER_LISTEN_PORT)
         { }
 
 

@@ -1,0 +1,6 @@
+﻿{
+  "AccountServerIPAddr": "127.0.0.1",
+  "TcpGatewayServerListenPort": 14000,
+  "IDGeneratorWorkID": 1,
+  "IDGeneratorDataCenterID": 1
+}

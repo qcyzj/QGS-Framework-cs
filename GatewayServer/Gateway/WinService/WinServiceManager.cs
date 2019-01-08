@@ -42,8 +42,8 @@ namespace GatewayServer.Gateway.WinService
             LogManager.Debug("Gateway Server Start...");
             LogManager.Info("Log manager initialized.");
 
-            ConfigManager.Instance.Init();
-            LogManager.Info("Config Manager initialized.");
+            ConfigManager.Instance.Initialize();
+            LogManager.Info("Config manager initialized.");
 
             UdpPortManager.Instance.Initialize();
             LogManager.Info("Udp port manager initialized.");
