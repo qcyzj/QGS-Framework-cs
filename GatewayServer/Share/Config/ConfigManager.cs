@@ -1,17 +1,58 @@
-﻿
+﻿using System.IO;
+
+using Newtonsoft.Json;
+
 namespace Share.Config
 {
+    public class GatewayServerConfig
+    {
+        public string GatewayServerIPAddr;
+        public int TcpUserListenPort;
+        public int UdpUserConnectPort;
+        public int TcpGameServerListenPort;
+        public int TcpAccountServerConnectPort;
+        public uint GatewayServerID;
+    }
+
     public class ConfigManager : Singleton<ConfigManager>
     {
-        public const string LOCAL_IP_ADDRESS = "127.0.0.1";
+        private const string CONFIG_JSON_FILE = "GatewayServerConfig.json";
 
-        public const int TCP_USER_LISTEN_PORT = 11000;
-        public const int UDP_USER_CONNECT_PORT = 12000;
+        private GatewayServerConfig m_Config;
 
-        public const int TCP_GAME_SERVER_LISTEN_PORT = 13000;
 
-        public const int TCP_ACCOUNT_SERVER_CONNECT_PORT = 14000;
+        public string LOCAL_IP_ADDRESS { get { return m_Config.GatewayServerIPAddr; } }
+        public int TCP_USER_LISTEN_PORT { get { return m_Config.TcpUserListenPort; }}
+        public int UDP_USER_CONNECT_PORT { get { return m_Config.UdpUserConnectPort; } }
+        public int TCP_GAME_SERVER_LISTEN_PORT { get { return m_Config.TcpGameServerListenPort; } }
+        public int TCP_ACCOUNT_SERVER_CONNECT_PORT { get { return m_Config.TcpAccountServerConnectPort; } }
+        public uint GATEWAY_SERVER_ID { get { return m_Config.GatewayServerID; } }
 
-        public const int GATEWAY_SERVER_ID = 1;
+
+        public ConfigManager()
+        {
+            m_Config = null;
+        }
+
+        public void Init()
+        {
+            string json_file = Path.Combine(Folder.GetCurrentDir(), CONFIG_JSON_FILE);
+
+            if (!File.Exists(json_file))
+            {
+                LogManager.Error("Gateway server config file " + json_file.ToString() + " not exist!");
+                return;
+            }
+
+            FileStream file_stream = new FileStream(json_file, FileMode.Open);
+            StreamReader stream_reader = new StreamReader(file_stream);
+            stream_reader.BaseStream.Seek(0, SeekOrigin.Begin);
+
+            string tmp_content = stream_reader.ReadToEnd();
+            m_Config  = JsonConvert.DeserializeObject<GatewayServerConfig>(tmp_content);
+
+            stream_reader.Close();
+            file_stream.Close();
+        }
     }
 }

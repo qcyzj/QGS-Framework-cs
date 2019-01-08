@@ -9,7 +9,7 @@ namespace GatewayServer.Gateway.Users
     public sealed class UserTcpServer : TcpServer
     {
         public UserTcpServer()
-            :base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, ConfigManager.TCP_USER_LISTEN_PORT)
+            :base(TcpServer.SOCKET_BLOCKING_TYPE.BLOCKING, ConfigManager.Instance.TCP_USER_LISTEN_PORT)
         {}
 
 

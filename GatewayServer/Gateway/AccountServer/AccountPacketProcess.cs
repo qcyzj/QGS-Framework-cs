@@ -17,7 +17,7 @@ namespace GatewayServer.Gateway.AccountServer
             AccountServer account_server = obj as AccountServer;
 
             uint gateway_server_id = pkt.GetUint();
-            Debug.Assert(ConfigManager.GATEWAY_SERVER_ID == gateway_server_id);
+            Debug.Assert(ConfigManager.Instance.GATEWAY_SERVER_ID == gateway_server_id);
 
             LogManager.Info("Receive auth packet: Gateway server ID = " + 
                             gateway_server_id.ToString());
@@ -30,7 +30,7 @@ namespace GatewayServer.Gateway.AccountServer
         {
             Packet pkt = PacketManager.Instance.AllocatePacket();
             pkt.SetPacketID(Protocol.GW_ACT_AUTH);
-            pkt.AddUint(ConfigManager.GATEWAY_SERVER_ID);
+            pkt.AddUint(ConfigManager.Instance.GATEWAY_SERVER_ID);
 
             SendPacket(pkt);
         }

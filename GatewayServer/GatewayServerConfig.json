@@ -1,0 +1,8 @@
+{
+  "GatewayServerIPAddr": "127.0.0.1",
+  "TcpUserListenPort": 11000,
+  "UdpUserConnectPort": 12000,
+  "TcpGameServerListenPort": 13000,
+  "TcpAccountServerConnectPort": 14000,
+  "GatewayServerID" :  1
+}

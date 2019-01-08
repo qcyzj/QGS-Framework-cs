@@ -9,7 +9,7 @@ namespace GatewayServer.Gateway.Users
     public sealed class UserUdpServer : UdpServer
     {
         public UserUdpServer()
-            :base(ConfigManager.UDP_USER_CONNECT_PORT)
+            :base(ConfigManager.Instance.UDP_USER_CONNECT_PORT)
         { }
 
 

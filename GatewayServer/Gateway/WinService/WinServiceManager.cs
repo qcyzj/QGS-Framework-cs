@@ -2,6 +2,7 @@
 using System.Threading;
 
 using Share;
+using Share.Config;
 using Share.Net.Buffer;
 using Share.Net.Server;
 using Share.Net.Packets;
@@ -40,6 +41,9 @@ namespace GatewayServer.Gateway.WinService
             LogManager.Initialize(log_dir, log_level, log_lay_out, log_append);
             LogManager.Debug("Gateway Server Start...");
             LogManager.Info("Log manager initialized.");
+
+            ConfigManager.Instance.Init();
+            LogManager.Info("Config Manager initialized.");
 
             UdpPortManager.Instance.Initialize();
             LogManager.Info("Udp port manager initialized.");

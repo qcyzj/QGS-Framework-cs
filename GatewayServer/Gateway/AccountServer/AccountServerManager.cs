@@ -21,8 +21,8 @@ namespace GatewayServer.Gateway.AccountServer
 
             m_AccountServer.Initialize();
 
-            m_AccountServer.ConnectToAccountServerAsync(ConfigManager.LOCAL_IP_ADDRESS,
-                                                        ConfigManager.TCP_ACCOUNT_SERVER_CONNECT_PORT);
+            m_AccountServer.ConnectToAccountServerAsync(ConfigManager.Instance.LOCAL_IP_ADDRESS,
+                                                        ConfigManager.Instance.TCP_ACCOUNT_SERVER_CONNECT_PORT);
 
             ValidInitializeOnce();
         }
