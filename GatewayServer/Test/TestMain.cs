@@ -12,12 +12,14 @@ namespace GatewayServer.Test
     {
         private TestShare m_Share;
         private TestShareNet m_ShareNet;
+        private TestShareJson m_ShareJson;
         private TestGatewayUser m_GatewayUser;
 
         public TestMain()
         {
             m_Share = new TestShare();
             m_ShareNet = new TestShareNet();
+            m_ShareJson = new TestShareJson();
             m_GatewayUser = new TestGatewayUser();
         }
 
@@ -38,9 +40,9 @@ namespace GatewayServer.Test
 
             m_ShareNet.RunAllTest();
 
+            m_ShareJson.RunAllTest();
+
             m_GatewayUser.RunAllTest();
-
-
 
 
             UserManager.Instance.Release();

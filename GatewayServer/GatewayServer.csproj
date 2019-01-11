@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Folder Include="Gateway\WinService\" />
-    <Folder Include="Test\" />
   </ItemGroup>
 
   <ItemGroup>
