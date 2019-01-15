@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics;
+
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Share.Json
@@ -28,6 +30,38 @@ namespace Share.Json
         {
             return m_Root.ToString();
         }            
+    }
+
+    public class JsonArray
+    {
+        private JArray m_Root;
+
+
+        public JArray Root { get { return m_Root; } }
+
+
+        public JsonArray()
+        {
+            m_Root = new JArray();
+            Debug.Assert(JTokenType.Array == m_Root.Type);
+        }
+
+        public JsonArray(JToken token)
+        {
+            m_Root = (JArray)token;
+            Debug.Assert(JTokenType.Array == m_Root.Type);
+        }
+
+        public JToken this[int index]
+        {
+            get { return m_Root[index]; }
+            set { m_Root[index] = value; }
+        }
+
+        public void Add(JToken value)
+        {
+            m_Root.Add(value);
+        }
     }
 
     public static class JsonHelper

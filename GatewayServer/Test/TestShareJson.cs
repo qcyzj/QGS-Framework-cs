@@ -48,18 +48,18 @@ namespace GatewayServer.Test
             test_json[Key_Name] = Value_Name;
             test_json[Key_Price] = Value_Price;
 
-            JArray test_array = new JArray();
+            JsonArray test_array = new JsonArray();
             test_array.Add(List_Value_1);
             test_array.Add(List_Value_2);
             test_array.Add(List_Value_3);
-            test_json[Key_List] = test_array;
+            test_json[Key_List] = test_array.Root;
 
             CAssert.AreEqual((string)test_json[Key_Name], Value_Name);
             CAssert.AreEqual((int)test_json[Key_Price], Value_Price);
 
             CAssert.AreEqual(JTokenType.Array, test_json[Key_List].Type);
 
-            JArray json_array = (JArray)(test_json[Key_List]);
+            JsonArray json_array = new JsonArray(test_json[Key_List]);
             CAssert.AreEqual((string)json_array[0], List_Value_1);
             CAssert.AreEqual((string)json_array[1], List_Value_2);
             CAssert.AreEqual((string)json_array[2], List_Value_3);
@@ -70,7 +70,7 @@ namespace GatewayServer.Test
             CAssert.AreEqual(test_two_json[Key_Price], test_json[Key_Price]);
             CAssert.AreEqual(JTokenType.Array, test_two_json[Key_List].Type);
 
-            JArray test_two_array = (JArray)test_two_json[Key_List];
+            JsonArray test_two_array = new JsonArray(test_two_json[Key_List]);
             CAssert.AreEqual((string)test_two_array[0], List_Value_1);
             CAssert.AreEqual((string)test_two_array[1], List_Value_2);
             CAssert.AreEqual((string)test_two_array[2], List_Value_3);
