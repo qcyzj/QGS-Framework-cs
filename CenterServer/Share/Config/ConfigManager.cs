@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-using Newtonsoft.Json;
+using Share.Json;
 
 namespace Share.Config
 {
@@ -41,7 +41,7 @@ namespace Share.Config
             stream_reader.BaseStream.Seek(0, SeekOrigin.Begin);
 
             string tmp_content = stream_reader.ReadToEnd();
-            m_Config = JsonConvert.DeserializeObject<CenterServerConfig>(tmp_content);
+            m_Config = JsonHelper.DeserializeJsonToObject<CenterServerConfig>(tmp_content);
 
             stream_reader.Close();
             file_stream.Close();
