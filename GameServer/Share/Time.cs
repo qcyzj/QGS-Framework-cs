@@ -42,7 +42,5 @@ namespace Share
         {
             return IsInSameDay(left.AddDays(-(int)left.DayOfWeek), right.AddDays(-(int)right.DayOfWeek));
         }
-
-
     }
 }
