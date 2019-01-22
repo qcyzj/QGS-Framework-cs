@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Share.Redis
+namespace Share.DB.Redis
 {
     class CacheHelper
     {

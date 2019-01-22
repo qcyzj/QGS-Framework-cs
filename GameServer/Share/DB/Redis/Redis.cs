@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 using StackExchange.Redis;
 
-namespace Share.Redis
+namespace Share.DB.Redis
 {
     public class Redis
     {
-        ConnectionMultiplexer m_ConnMultiplexer;
-        IDatabase m_DataBase;
+        private ConnectionMultiplexer m_ConnMultiplexer;
+        private IDatabase m_DataBase;
 
         public DateTime TimeConvert { get; private set; }
 
