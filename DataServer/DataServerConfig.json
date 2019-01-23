@@ -1,0 +1,5 @@
+{
+  "RedisIPAddr": "127.0.0.1",
+  "RedisPort": 6379,
+  "MySqlConnection": "server=127.0.0.1;User Id=root;password=root;Persist Security Info=True;database=test;Pooling=false;CharSet=utf8",
+}

@@ -42,7 +42,7 @@ namespace GameServer.GameServer.WinService
 
             LogManager.Initialize(log_dir, log_level, log_lay_out, log_append);
             LogManager.Debug("Game Server Start...");
-            LogManager.Info("Log Manager initialized.");
+            LogManager.Info("Log manager initialized.");
 
             ConfigManager.Instance.Initialize();
             LogManager.Info("Config manager initialized.");
