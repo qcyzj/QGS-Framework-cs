@@ -6,12 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Share\Script\Python\" />
     <Folder Include="Test\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MySql.Data" Version="8.0.14" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="NLua" Version="1.4.4" />
     <PackageReference Include="StackExchange.Redis" Version="2.0.519" />
   </ItemGroup>
 
