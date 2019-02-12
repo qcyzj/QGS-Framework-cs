@@ -16,13 +16,14 @@ namespace Share.Script.Python
         }
 
 
-        public dynamic LoadScriptFromFile(string path)
+        // using python script in c#
+        public dynamic CreateScriptFromFile(string path)
         {
             ScriptSource source = m_Engine.CreateScriptSourceFromFile(path);
             return source.Execute(m_Scope);
         }
 
-        public dynamic LoadScriptFromString(string expr)
+        public dynamic CreateScriptFromString(string expr)
         {
             ScriptSource source = m_Engine.CreateScriptSourceFromString(expr);
             return source.Execute(m_Scope);
@@ -42,6 +43,13 @@ namespace Share.Script.Python
         public T GetClass<T>(string name)
         {
             return m_Scope.GetVariable<T>(name);
+        }
+
+
+        // using c# objects in python script
+        public void SetVariable(string name, object value)
+        {
+            m_Scope.SetVariable(name, value)
         }
     }
 }
