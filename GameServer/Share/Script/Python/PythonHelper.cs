@@ -49,7 +49,7 @@ namespace Share.Script.Python
         // using c# objects in python script
         public void SetVariable(string name, object value)
         {
-            m_Scope.SetVariable(name, value)
+            m_Scope.SetVariable(name, value);
         }
     }
 }
