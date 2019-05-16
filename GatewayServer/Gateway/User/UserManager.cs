@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 using Share;
 using Share.Net.Packets;
@@ -11,27 +12,20 @@ namespace GatewayServer.Gateway.Users
     {
         private Queue<User> m_FreeUserQueue;
 
-        private List<User> m_ConnectedUserList;
-        private Dictionary<uint, User> m_AuthedUserDict;
-        private object m_AuthedLock;
-        private object m_ConnectLock;
+        private LightConcurrentList<User> m_ConnectedUserList;
+        private ConcurrentDictionary<uint, User> m_AuthedUserDict;
 
-        private Dictionary<uint, User> m_ConnectlessUserDict;
-        private object m_LessLock;
+        private ConcurrentDictionary<uint, User> m_ConnectlessUserDict;
 
 
         public UserManager()
         {
             m_FreeUserQueue = new Queue<User>();
 
-            m_ConnectedUserList = new List<User>();
-            m_AuthedUserDict = new Dictionary<uint, User>();
+            m_ConnectedUserList = new LightConcurrentList<User>();
+            m_AuthedUserDict = new ConcurrentDictionary<uint, User>();
 
-            m_AuthedLock = new object();
-            m_ConnectLock = new object();
-
-            m_ConnectlessUserDict = new Dictionary<uint, User>();
-            m_LessLock = new object();
+            m_ConnectlessUserDict = new ConcurrentDictionary<uint, User>();
         }
 
 
@@ -66,23 +60,17 @@ namespace GatewayServer.Gateway.Users
 
             m_FreeUserQueue = null;
 
-            lock (m_ConnectLock)
+            foreach (User tmp_user in m_ConnectedUserList)
             {
-                foreach (User tmp_user in m_ConnectedUserList)
-                {
-                    tmp_user.Release();
-                }
+                tmp_user.Release();
             }
 
             m_ConnectedUserList.Clear();
             m_ConnectedUserList = null;
 
-            lock (m_AuthedLock)
+            foreach (User tmp_user in m_AuthedUserDict.Values)
             {
-                foreach (User tmp_user in m_AuthedUserDict.Values)
-                {
-                    tmp_user.Release();
-                }
+                tmp_user.Release();
             }
 
             m_AuthedUserDict.Clear();
@@ -115,53 +103,31 @@ namespace GatewayServer.Gateway.Users
 
         public void AddConnectedUser(User user)
         {
-            lock (m_ConnectLock)
-            {
-                Debug.Assert(!m_ConnectedUserList.Contains(user));
+            Debug.Assert(!m_ConnectedUserList.Contains(user));
 
-                if (!m_ConnectedUserList.Contains(user))
-                {
-                    m_ConnectedUserList.Add(user);
-                }
-                else
-                {
-                    Debug.Assert(false);
-                }
-            }
+            m_ConnectedUserList.TryAdd(user);
             
             LogManager.Debug("Add connected user. UserID = " + user.UserID);
         }
 
         public void AddAuthedUser(User user)
         {
-            lock (m_ConnectLock)
-            {
-                int index = m_ConnectedUserList.IndexOf(user);
+            Debug.Assert(m_ConnectedUserList.IndexOf(user) > -1);
 
-                if (index > -1)
-                {
-                    m_ConnectedUserList.RemoveAt(index);
-                }
-                else
-                {
-                    Debug.Assert(false);
-                }
+            if (m_ConnectedUserList.TryRemove(user))
+            {}
+            else
+            {
+                Debug.Assert(false);
             }
 
-            User tmp_user = null;
-
-            lock (m_AuthedLock)
+            if (m_AuthedUserDict.TryRemove(user.UserID, out User tmp_user))
             {
-                if (m_AuthedUserDict.TryGetValue(user.UserID, out tmp_user))
-                {
-                    Debug.Assert(false);
-                    m_AuthedUserDict.Remove(user.UserID);
-
-                    FreeUser(tmp_user);
-                }
-
-                m_AuthedUserDict.Add(user.UserID, user);
+                Debug.Assert(false);
+                FreeUser(tmp_user);
             }
+
+            m_AuthedUserDict.TryAdd(user.UserID, user);
 
             LogManager.Debug("Add authed user. UserID = " + user.UserID);
         }
@@ -170,23 +136,9 @@ namespace GatewayServer.Gateway.Users
         {
             //Debug.Assert(User.INVALID_USER_ID != user.UserID);
 
-            lock (m_AuthedLock)
-            {
-                if (m_AuthedUserDict.ContainsKey(user.UserID))
-                {
-                    m_AuthedUserDict.Remove(user.UserID);
-                }
-            }
+            m_AuthedUserDict.TryRemove(user.UserID, out User tmp_user);
 
-            lock (m_ConnectLock)
-            {
-                int index = m_ConnectedUserList.IndexOf(user);
-
-                if (index > -1)
-                {
-                    m_ConnectedUserList.RemoveAt(index);
-                }
-            }
+            m_ConnectedUserList.TryRemove(user);
 
             LogManager.Debug("Remove connected user. UserID = " + user.UserID);
 
@@ -196,20 +148,14 @@ namespace GatewayServer.Gateway.Users
 
         public void AddConnectlessUser(User user)
         {
-            User tmp_user = null;
-
-            lock (m_LessLock)
+            if (m_ConnectlessUserDict.TryRemove(user.UserID, out User tmp_user))
             {
-                if (m_ConnectlessUserDict.TryGetValue(user.UserID, out tmp_user))
-                {
-                    Debug.Assert(false);
-                    m_ConnectlessUserDict.Remove(user.UserID);
-
-                    FreeUser(tmp_user);
-                }
-
-                m_ConnectlessUserDict.Add(user.UserID, user);
+                FreeUser(tmp_user);
             }
+
+            m_ConnectlessUserDict.TryAdd(user.UserID, user);
+
+            LogManager.Debug("Add connectless user. UserID = " + user.UserID);
         }
 
 
@@ -247,7 +193,7 @@ namespace GatewayServer.Gateway.Users
 
         public int GetConnectedUserCount()
         {
-            return m_ConnectedUserList.Count;
+            return m_ConnectedUserList.Count();
         }
     }
 }

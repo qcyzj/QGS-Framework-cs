@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 using Share;
 using Share.Net.Packets;
@@ -14,21 +15,16 @@ namespace GatewayServer.Gateway.GameServers
 
         private Queue<GameServer> m_FreeGameServerQueue;
 
-        private List<GameServer> m_ConnectedGameServerList;
-        private Dictionary<uint, GameServer> m_AuthedGameServerDict;
-        private object m_AuthedLock;
-        private object m_ConnectLock;
+        private LightConcurrentList<GameServer> m_ConnectedGameServerList;
+        private ConcurrentDictionary<uint, GameServer> m_AuthedGameServerDict;
 
 
         public GameServerManager()
         {
             m_FreeGameServerQueue = new Queue<GameServer>();
 
-            m_ConnectedGameServerList = new List<GameServer>();
-            m_AuthedGameServerDict = new Dictionary<uint, GameServer>();
-
-            m_AuthedLock = new object();
-            m_ConnectLock = new object();
+            m_ConnectedGameServerList = new LightConcurrentList<GameServer>();
+            m_AuthedGameServerDict = new ConcurrentDictionary<uint, GameServer>();
         }
 
 
@@ -56,23 +52,17 @@ namespace GatewayServer.Gateway.GameServers
 
             m_FreeGameServerQueue = null;
 
-            lock (m_ConnectLock)
+            foreach (GameServer tmp_game_s in m_ConnectedGameServerList)
             {
-                foreach (GameServer tmp_game_s in m_ConnectedGameServerList)
-                {
-                    tmp_game_s.Release();
-                }
+                tmp_game_s.Release();
             }
 
             m_ConnectedGameServerList.Clear();
             m_ConnectedGameServerList = null;
 
-            lock (m_AuthedLock)
+            foreach (GameServer tmp_game_s in m_AuthedGameServerDict.Values)
             {
-                foreach (GameServer tmp_game_s in m_AuthedGameServerDict.Values)
-                {
-                    tmp_game_s.Release();
-                }
+                tmp_game_s.Release();
             }
 
             m_AuthedGameServerDict.Clear();
@@ -117,15 +107,9 @@ namespace GatewayServer.Gateway.GameServers
 
         public void AddConnectedGameServer(GameServer game_s)
         {
-            lock (m_ConnectLock)
-            {
-                Debug.Assert(!m_ConnectedGameServerList.Contains(game_s));
+            Debug.Assert(!m_ConnectedGameServerList.Contains(game_s));
 
-                if (!m_ConnectedGameServerList.Contains(game_s))
-                {
-                    m_ConnectedGameServerList.Add(game_s);
-                }
-            }
+            m_ConnectedGameServerList.TryAdd(game_s);
 
             LogManager.Debug("Add connected game server. Game server ID = " + 
                              game_s.GameServerID.ToString());
@@ -133,58 +117,32 @@ namespace GatewayServer.Gateway.GameServers
 
         public void AddAuthedGameServer(GameServer game_s)
         {
-            lock (m_ConnectLock)
-            {
-                int index = m_ConnectedGameServerList.IndexOf(game_s);
+            Debug.Assert(m_ConnectedGameServerList.IndexOf(game_s) > -1);
 
-                if (index > -1)
-                {
-                    m_ConnectedGameServerList.RemoveAt(index);
-                }
-                else
-                {
-                    Debug.Assert(false);
-                }
+            if (m_ConnectedGameServerList.TryRemove(game_s))
+            {}
+            else
+            {
+                Debug.Assert(false);
             }
 
-            GameServer tmp_game_s = null;
-
-            lock (m_AuthedLock)
+            if (m_AuthedGameServerDict.TryRemove(game_s.GameServerID, out GameServer tmp_game_s))
             {
-                if (m_AuthedGameServerDict.TryGetValue(game_s.GameServerID, out tmp_game_s))
-                {
-                    Debug.Assert(false);
-                    m_AuthedGameServerDict.Remove(game_s.GameServerID);
-
-                    FreeGameServer(tmp_game_s);
-                }
-
-                m_AuthedGameServerDict.Add(game_s.GameServerID, game_s);
+                Debug.Assert(false);
+                FreeGameServer(tmp_game_s);
             }
 
+            m_AuthedGameServerDict.TryAdd(game_s.GameServerID, game_s);
+    
             LogManager.Debug("Add authed game server. Game server ID = " + 
                              game_s.GameServerID.ToString());
         }
 
         public void RemoveGameServer(GameServer game_s)
         {
-            lock (m_AuthedLock)
-            {
-                if (m_AuthedGameServerDict.ContainsKey(game_s.GameServerID))
-                {
-                    m_AuthedGameServerDict.Remove(game_s.GameServerID);
-                }
-            }
+            m_AuthedGameServerDict.TryRemove(game_s.GameServerID, out GameServer tmp_game_s);
 
-            lock (m_ConnectLock)
-            {
-                int index = m_ConnectedGameServerList.IndexOf(game_s);
-
-                if (index > -1)
-                {
-                    m_ConnectedGameServerList.RemoveAt(index);
-                }
-            }
+            m_ConnectedGameServerList.TryRemove(game_s);
 
             LogManager.Debug("Remove connected game server. Game server ID = " + 
                              game_s.GameServerID.ToString());
