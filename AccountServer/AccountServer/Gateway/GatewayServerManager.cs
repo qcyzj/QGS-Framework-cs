@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 using Share;
 using Share.Net.Packets;
@@ -14,21 +15,16 @@ namespace AccountServer.AccountServer.Gateway
 
         private Queue<GatewayServer> m_FreeGatewayQueue;
 
-        private List<GatewayServer> m_ConnectedGatewayList;
-        private Dictionary<uint, GatewayServer> m_AuthedGatewayDict;
-        private object m_AuthedLock;
-        private object m_ConnectLock;
+        private LightConcurrentList<GatewayServer> m_ConnectedGatewayList;
+        private ConcurrentDictionary<uint, GatewayServer> m_AuthedGatewayDict;
 
 
         public GatewayServerManager()
         {
             m_FreeGatewayQueue = new Queue<GatewayServer>();
 
-            m_ConnectedGatewayList = new List<GatewayServer>();
-            m_AuthedGatewayDict = new Dictionary<uint, GatewayServer>();
-
-            m_AuthedLock = new object();
-            m_ConnectLock = new object();
+            m_ConnectedGatewayList = new LightConcurrentList<GatewayServer>();
+            m_AuthedGatewayDict = new ConcurrentDictionary<uint, GatewayServer>();
         }
 
 
@@ -56,23 +52,17 @@ namespace AccountServer.AccountServer.Gateway
 
             m_FreeGatewayQueue = null;
 
-            lock (m_ConnectLock)
+            foreach (GatewayServer tmp_gateway_s in m_ConnectedGatewayList)
             {
-                foreach (GatewayServer tmp_gateway_s in m_ConnectedGatewayList)
-                {
-                    tmp_gateway_s.Release();
-                }
+                tmp_gateway_s.Release();
             }
 
             m_ConnectedGatewayList.Clear();
             m_ConnectedGatewayList = null;
 
-            lock (m_AuthedLock)
+            foreach (GatewayServer tmp_gateway_s in m_AuthedGatewayDict.Values)
             {
-                foreach (GatewayServer tmp_gateway_s in m_AuthedGatewayDict.Values)
-                {
-                    tmp_gateway_s.Release();
-                }
+                tmp_gateway_s.Release();
             }
 
             m_AuthedGatewayDict.Clear();
@@ -117,15 +107,9 @@ namespace AccountServer.AccountServer.Gateway
 
         public void AddConnectedGatewayServer(GatewayServer gateway_s)
         {
-            lock (m_ConnectLock)
-            {
-                Debug.Assert(!m_ConnectedGatewayList.Contains(gateway_s));
+            Debug.Assert(!m_ConnectedGatewayList.Contains(gateway_s));
 
-                if (!m_ConnectedGatewayList.Contains(gateway_s))
-                {
-                    m_ConnectedGatewayList.Add(gateway_s);
-                }
-            }
+            m_ConnectedGatewayList.TryAdd(gateway_s);
 
             LogManager.Debug("Add connected gateway server. Gateway server ID = " +
                              gateway_s.GatewayServerID.ToString());
@@ -133,34 +117,22 @@ namespace AccountServer.AccountServer.Gateway
 
         public void AddAuthedGatewayServer(GatewayServer gateway_s)
         {
-            lock (m_AuthedLock)
-            {
-                int index = m_ConnectedGatewayList.IndexOf(gateway_s);
+            Debug.Assert(m_ConnectedGatewayList.IndexOf(gateway_s) > -1);
 
-                if (index > -1)
-                {
-                    m_ConnectedGatewayList.RemoveAt(index);
-                }
-                else
-                {
-                    Debug.Assert(false);
-                }
+            if (m_ConnectedGatewayList.TryRemove(gateway_s))
+            {}
+            else
+            {
+                Debug.Assert(false);
             }
 
-            GatewayServer tmp_gateway_s = null;
-
-            lock (m_AuthedLock)
+            if (m_AuthedGatewayDict.TryRemove(gateway_s.GatewayServerID, out GatewayServer tmp_gateway_s))
             {
-                if (m_AuthedGatewayDict.TryGetValue(gateway_s.GatewayServerID, out tmp_gateway_s))
-                {
-                    Debug.Assert(false);
-                    m_AuthedGatewayDict.Remove(gateway_s.GatewayServerID);
-
-                    FreeGatewayServer(tmp_gateway_s);
-                }
-
-                m_AuthedGatewayDict.Add(gateway_s.GatewayServerID, gateway_s);
+                Debug.Assert(false);
+                FreeGatewayServer(tmp_gateway_s);
             }
+
+            m_AuthedGatewayDict.TryAdd(gateway_s.GatewayServerID, gateway_s);
 
             LogManager.Debug("Add authed gateway server. Gateway server ID = " +
                              gateway_s.GatewayServerID.ToString());
@@ -168,23 +140,9 @@ namespace AccountServer.AccountServer.Gateway
 
         public void RemoveGatewayServer(GatewayServer gateway_s)
         {
-            lock (m_AuthedLock)
-            {
-                if (m_AuthedGatewayDict.ContainsKey(gateway_s.GatewayServerID))
-                {
-                    m_AuthedGatewayDict.Remove(gateway_s.GatewayServerID);
-                }
-            }
+            m_AuthedGatewayDict.TryRemove(gateway_s.GatewayServerID, out GatewayServer tmp_gate_s);
 
-            lock (m_ConnectLock)
-            {
-                int index = m_ConnectedGatewayList.IndexOf(gateway_s);
-
-                if (index > -1)
-                {
-                    m_ConnectedGatewayList.RemoveAt(index);
-                }
-            }
+            m_ConnectedGatewayList.TryRemove(gateway_s);
 
             LogManager.Debug("Remove connected gateway server. Gateway server ID " +
                              gateway_s.GatewayServerID.ToString());
