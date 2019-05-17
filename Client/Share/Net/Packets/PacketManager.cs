@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Share.Net.Packets
 {
@@ -11,15 +12,13 @@ namespace Share.Net.Packets
 
 
         private List<byte[][]> m_BufferList;
-        private Queue<Packet> m_PacketQueue;
-        private object m_QueueLock;
+        private ConcurrentQueue<Packet> m_PacketQueue;
 
 
         public PacketManager()
         {
             m_BufferList = new List<byte[][]>();
-            m_PacketQueue = new Queue<Packet>();
-            m_QueueLock = new object();
+            m_PacketQueue = new ConcurrentQueue<Packet>();
         }
 
 
@@ -34,16 +33,11 @@ namespace Share.Net.Packets
         {
             ValidReleaseOnce();
 
-            Packet pkt = null;
-
-            while (m_PacketQueue.Count > 0)
+            while (m_PacketQueue.TryDequeue(out Packet pkt))
             {
-                pkt = m_PacketQueue.Dequeue();
                 pkt.Release();
                 pkt = null;
             }
-
-            m_PacketQueue.Clear();
 
             for (int i = 0; i < m_BufferList.Count; ++i)
             {
@@ -75,17 +69,14 @@ namespace Share.Net.Packets
 
         public Packet AllocatePacket()
         {
-            Packet pkt = null;
-
-            lock (m_QueueLock)
+            if (m_PacketQueue.TryDequeue(out Packet pkt))
+            {}
+            else
             {
-                if (0 == m_PacketQueue.Count)
-                {
-                    DynamicAllocatePacket(DYNAMIC_ALLOCATE_PACKET_NUM);
-                }
-
+                DynamicAllocatePacket(DYNAMIC_ALLOCATE_PACKET_NUM);
                 Debug.Assert(m_PacketQueue.Count > 0);
-                pkt = m_PacketQueue.Dequeue();
+
+                m_PacketQueue.TryDequeue(out pkt);
             }
 
             pkt.Initialize();
@@ -100,10 +91,7 @@ namespace Share.Net.Packets
                 return;
             }
             
-            lock (m_QueueLock)
-            {
-                m_PacketQueue.Enqueue(pkt);
-            }
+            m_PacketQueue.Enqueue(pkt);
         }
 
 

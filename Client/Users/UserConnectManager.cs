@@ -9,7 +9,7 @@ namespace Client.Users
 {
     public sealed class UserConnectManager : Singleton<UserConnectManager>
     {
-        private const int USER_NUM_MAX = 1;
+        private const int USER_NUM_MAX = 10;
         private const int TCP_USER_ID_BASE = 0;
         private const int UDP_USER_ID_BASE = 10000;
 

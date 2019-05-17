@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="ClientService\ClientServiceManager.cs" />
     <Compile Include="Protocol.cs" />
+    <Compile Include="Share\Collections\LightConcurrentList.cs" />
     <Compile Include="Share\Config\ConfigManager.cs" />
     <Compile Include="Share\Folder.cs" />
     <Compile Include="Share\Net\Buffer\BufferManager.cs" />
