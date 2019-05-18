@@ -48,6 +48,9 @@
     <Compile Include="Share\Collections\LightConcurrentList.cs" />
     <Compile Include="Share\Config\ConfigManager.cs" />
     <Compile Include="Share\Folder.cs" />
+    <Compile Include="Share\Log\Log.cs" />
+    <Compile Include="Share\Log\LogDBuffer.cs" />
+    <Compile Include="Share\Log\LogManager.cs" />
     <Compile Include="Share\Net\Buffer\BufferManager.cs" />
     <Compile Include="Share\Net\Packets\PacketManager.cs" />
     <Compile Include="Share\Net\Packets\PacketProcessManager.cs" />
@@ -57,11 +60,11 @@
     <Compile Include="Share\Net\Sessions\TcpSession.cs" />
     <Compile Include="Share\Net\Sessions\UdpSession.cs" />
     <Compile Include="Share\Singleton.cs" />
+    <Compile Include="Share\ThreadManager.cs" />
     <Compile Include="Share\Time.cs" />
     <Compile Include="Users\User.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Share\LogManager.cs" />
     <Compile Include="Share\Net\Packets\Packet.cs" />
     <Compile Include="Share\Net\Sessions\Session.cs" />
     <Compile Include="Users\UserConnectManager.cs" />
