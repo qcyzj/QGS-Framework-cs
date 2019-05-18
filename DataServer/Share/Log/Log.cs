@@ -3,123 +3,9 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
-using System.Collections.Generic;
 
 namespace Share
 {
-    public static class LogManager
-    {
-        public enum LOG_LEVEL
-        {
-            ALL = 0,
-            DEBUG,
-            INFO,
-            WARN,
-            ERROR,
-            FATAL,
-            OFF,
-        }
-
-        public enum LOG_APPENDER
-        {
-            COLORED_CONSOLE = 0x01,
-            CONSOLE = 0x02,
-            FILE = 0x04,
-            TRACE = 0x08,
-        }
-
-        public enum LOG_LAYOUT
-        {
-            UTC_TIMESTAMP = 0,
-            RAW_TIMESTAMP,
-            SIMPLE_FORMAT,
-            XML_FORMAT,
-        }
-
-
-        private static Log m_Logger;
-
-        
-        public static void Initialize(string log_path, string level, string lay_out, int log_appender)
-        {
-            m_Logger = new Log(log_path, level, lay_out, log_appender);
-        }
-
-        public static void Release()
-        {
-            if (null != m_Logger)
-            {
-                m_Logger.Release();
-            }
-        }
-        
-
-        public static void Debug(string log)
-        {
-            Debug(log, null);
-        }
-
-        public static void Info(string log)
-        {
-            Info(log, null);
-        }
-
-        public static void Warn(string log)
-        {
-            Warn(log, null);
-        }
-
-        public static void Error(string log)
-        {
-            Error(log, null);
-        }
-
-        public static void Fatal(string log)
-        {
-            Fatal(log, null);
-        }
-
-        public static void Debug(string log, Exception ex)
-        {
-            if (m_Logger.GetLevel() <= LOG_LEVEL.DEBUG)
-            {
-                m_Logger.Write(LOG_LEVEL.DEBUG, log, ex);
-            }
-        }
-
-        public static void Info(string log, Exception ex)
-        {
-            if (m_Logger.GetLevel() <= LOG_LEVEL.INFO)
-            {
-                m_Logger.Write(LOG_LEVEL.INFO, log, ex);
-            }
-        }
-
-        public static void Warn(string log, Exception ex)
-        {
-            if (m_Logger.GetLevel() <= LOG_LEVEL.WARN)
-            {
-                m_Logger.Write(LOG_LEVEL.WARN, log, ex);
-            }
-        }
-
-        public static void Error(string log, Exception ex)
-        {
-            if (m_Logger.GetLevel() <= LOG_LEVEL.ERROR)
-            {
-                m_Logger.Write(LOG_LEVEL.ERROR, log, ex);
-            }
-        }
-
-        public static void Fatal(string log, Exception ex)
-        {
-            if (m_Logger.GetLevel() <= LOG_LEVEL.FATAL)
-            {
-                m_Logger.Write(LOG_LEVEL.FATAL, log, ex);
-            }
-        }
-    }
-
     public sealed class Log
     {
         private const string DEFAULT_LOG_PATH = "logs";
@@ -159,7 +45,7 @@ namespace Share
         private string m_LogPath;
 
         private Thread m_LogThread;
-        private LogBuffer m_LogBuffer;
+        private LogDBuffer m_LogBuffer;
         private bool m_IsActive;
 
 
@@ -184,7 +70,7 @@ namespace Share
 
             m_LogThread = new Thread(this.Run);
             m_LogThread.Name = this.GetType().Name + " work thread";
-            m_LogBuffer = new LogBuffer();
+            m_LogBuffer = new LogDBuffer();
             m_IsActive = true;
 
             m_LogThread.Start();
@@ -196,7 +82,7 @@ namespace Share
         public LogManager.LOG_LEVEL GetLevel()
         {
             return m_Level;
-        } 
+        }
 
         private LogManager.LOG_LEVEL ParseLogLevel(string level)
         {
@@ -287,9 +173,9 @@ namespace Share
                 str_now = today.ToShortDateString() + " " + Time.GetNow().ToLongTimeString();
             }
             else if (LogManager.LOG_LAYOUT.SIMPLE_FORMAT == m_Layout)
-            {}
+            { }
             else if (LogManager.LOG_LAYOUT.XML_FORMAT == m_Layout)
-            {}
+            { }
 
             log = str_now + " [" + GetLevelName(level) + "] " + log;
 
@@ -467,137 +353,6 @@ namespace Share
 
                 Thread.Sleep(sleep_seconds);
             }
-        }
-    }
-
-    public sealed class LogBuffer
-    {
-        private enum BUFFER_ID
-        {
-            INVALID = 0,
-            BUF_FIRST,
-            BUF_SECOND,
-        }
-
-
-        private const int LOG_BUF_SIZE_MAX = 16;
-        private const int LOG_BUF_CAN_READ_SIZE = 12;
-
-
-        private List<string> m_BufferFirst;
-        private List<string> m_BufferSecond;
-        private BUFFER_ID m_WriteBufID;
-        private object m_WriteLockObj;
-        private bool m_BufferCanRead;
-        private bool m_ServiceWillStop;
-
-
-        public LogBuffer()
-        {
-            m_BufferFirst = new List<string>(LOG_BUF_SIZE_MAX);
-            m_BufferSecond = new List<string>(LOG_BUF_SIZE_MAX);
-
-            m_WriteBufID = BUFFER_ID.BUF_FIRST;
-            m_WriteLockObj = new object();
-            m_BufferCanRead = false;
-            m_ServiceWillStop = false;
-        }
-
-
-        public void WriteLog(string log)
-        {
-            lock (m_WriteLockObj)
-            {
-                List<string> write_buf = BUFFER_ID.BUF_FIRST == m_WriteBufID ? m_BufferFirst : m_BufferSecond;
-                write_buf.Add(log);
-
-                if (!m_BufferCanRead && write_buf.Count >= LOG_BUF_CAN_READ_SIZE)
-                {
-                    m_BufferCanRead = true;
-                }
-            }
-        }
-
-        public byte[] ReadLog(StringBuilder temp_sb, ref bool has_log)
-        {
-            temp_sb.Clear();
-
-            List<string> write_buf = BUFFER_ID.BUF_FIRST == m_WriteBufID ? m_BufferFirst : m_BufferSecond;
-            List<string> read_buf = BUFFER_ID.BUF_FIRST == m_WriteBufID ? m_BufferSecond : m_BufferFirst;
-            byte[] log_array = null;
-
-            if (0 == read_buf.Count)
-            {
-                lock (m_WriteLockObj)
-                {
-                    if (m_BufferCanRead || m_ServiceWillStop)
-                    {
-                        SwapBuffer(ref write_buf, ref read_buf);
-
-                        m_BufferCanRead = false;
-
-                        Debug.Assert(0 == write_buf.Count);
-                    }
-                }
-
-                if (read_buf.Count > 0)
-                {
-                    foreach (string log in read_buf)
-                    {
-                        temp_sb.Append(log);
-                    }
-
-                    read_buf.Clear();
-
-                    log_array = Encoding.Default.GetBytes(temp_sb.ToString());
-                    has_log = true;
-                }
-                else
-                {
-                    has_log = false;
-                }
-            }
-
-            return log_array;
-        }
-
-        private void SwapBuffer(ref List<string> write_buf, ref List<string> read_buf)
-        {
-            List<string> temp = write_buf;
-            write_buf = read_buf;
-            read_buf = temp;
-
-            if (BUFFER_ID.BUF_FIRST == m_WriteBufID)
-            {
-                m_WriteBufID = BUFFER_ID.BUF_SECOND;
-            }
-            else
-            {
-                m_WriteBufID = BUFFER_ID.BUF_FIRST;
-            }
-        }
-
-
-        public bool HasLog()
-        {
-            int write_num = 0;
-            int read_num = 0;
-
-            lock(m_WriteLockObj)
-            {
-                List<string> write_buf = BUFFER_ID.BUF_FIRST == m_WriteBufID ? m_BufferFirst : m_BufferSecond;
-                List<string> read_buf = BUFFER_ID.BUF_FIRST == m_WriteBufID ? m_BufferSecond : m_BufferFirst;
-
-                write_num = write_buf.Count;
-                read_num = read_buf.Count;
-            }
-
-            return write_num > 0 || read_num > 0;
-        }
-
-        public void SetServiceStop()
-        {
-            m_ServiceWillStop = true;
         }
     }
 }
