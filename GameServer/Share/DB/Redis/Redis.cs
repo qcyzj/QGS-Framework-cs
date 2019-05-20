@@ -10,7 +10,7 @@ namespace Share.DB.Redis
         private ConnectionMultiplexer m_ConnMultiplexer;
         private IDatabase m_DataBase;
 
-        public DateTime TimeConvert { get; private set; }
+        public DateTimeOffset TimeConvert { get; private set; }
 
         public Redis(string ip_addr, int port)
         {
@@ -56,7 +56,7 @@ namespace Share.DB.Redis
             return m_DataBase.StringSet(key, value, expire_time);
         }
 
-        public bool StringSet(RedisKey key, RedisValue value, DateTime expire_time)
+        public bool StringSet(RedisKey key, RedisValue value, DateTimeOffset expire_time)
         {
             TimeSpan time_span = expire_time - Time.GetUtcNow();
             return m_DataBase.StringSet(key, value, time_span);
