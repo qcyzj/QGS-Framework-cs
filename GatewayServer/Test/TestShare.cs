@@ -68,10 +68,10 @@ namespace GatewayServer.Test
 
         private void Test_Share_Time()
         {
-            DateTime now = Time.GetNow();
-            DateTime utc_now = Time.GetUtcNow();
-            DateTime today = Time.GetToday();
-            DateTime next_day = Time.GetNextDay(now);
+            DateTimeOffset now = Time.GetNow();
+            DateTimeOffset utc_now = Time.GetUtcNow();
+            DateTimeOffset today = Time.GetToday();
+            DateTimeOffset next_day = Time.GetNextDay(now);
 
             CAssert.IsTrue(Time.IsInSameDay(now, today));
             CAssert.IsFalse(Time.IsInSameDay(today, next_day));

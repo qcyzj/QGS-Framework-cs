@@ -162,15 +162,14 @@ namespace Share
             }
 
             string str_now = string.Empty;
-            DateTime today = Time.GetToday();
 
             if (LogManager.LOG_LAYOUT.UTC_TIMESTAMP == m_Layout)
             {
-                str_now = today.ToShortDateString() + " " + Time.GetUtcNow().ToLongTimeString();
+                str_now = Time.GetUtcNow().ToString("G");
             }
             else if (LogManager.LOG_LAYOUT.RAW_TIMESTAMP == m_Layout)
             {
-                str_now = today.ToShortDateString() + " " + Time.GetNow().ToLongTimeString();
+                str_now = Time.GetNow().ToString("G");
             }
             else if (LogManager.LOG_LAYOUT.SIMPLE_FORMAT == m_Layout)
             { }
@@ -202,7 +201,7 @@ namespace Share
             m_LogBuffer.WriteLog(log);
         }
 
-        private void WriteFile(DateTime today, byte[] log_array)
+        private void WriteFile(DateTimeOffset today, byte[] log_array)
         {
             string file_suffixes = string.Empty;
 
@@ -341,7 +340,7 @@ namespace Share
 
                 if (has_log)
                 {
-                    DateTime today = Time.GetToday();
+                    DateTimeOffset today = Time.GetToday();
                     WriteFile(today, log_array);
 
                     sleep_seconds = NORMAL_LOG_WAIT_TIME;

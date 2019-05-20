@@ -4,41 +4,41 @@ namespace Share
 {
     public static class Time
     {
-        private static DateTime min_time = new DateTime(1970, 1, 1);
-        private static DateTime max_time = new DateTime(2030, 1, 1);
+        private static DateTimeOffset min_time = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        private static DateTimeOffset max_time = new DateTimeOffset(2099, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
 
-        public static DateTime MinValue { get { return min_time; } }
-        public static DateTime MaxValue { get { return max_time; } }
+        public static DateTimeOffset MinValue { get { return min_time; } }
+        public static DateTimeOffset MaxValue { get { return max_time; } }
 
 
-        public static DateTime GetUtcNow()
+        public static DateTimeOffset GetUtcNow()
         {
-            return DateTime.UtcNow;
+            return DateTimeOffset.UtcNow;
         }
 
-        public static DateTime GetNow()
+        public static DateTimeOffset GetNow()
         {
-            return DateTime.Now;
+            return DateTimeOffset.Now;
         }
 
-        public static DateTime GetToday()
+        public static DateTimeOffset GetToday()
         {
-            return DateTime.Today;
+            return DateTimeOffset.UtcNow.Date;
         }
 
-        public static DateTime GetNextDay(DateTime cur)
+        public static DateTimeOffset GetNextDay(DateTimeOffset cur)
         {
             return cur.Date.AddDays(1);
         }
 
 
-        public static bool IsInSameDay(DateTime left, DateTime right)
+        public static bool IsInSameDay(DateTimeOffset left, DateTimeOffset right)
         {
             return left.Date == right.Date; 
         }
 
-        public static bool IsInSameWeek(DateTime left, DateTime right)
+        public static bool IsInSameWeek(DateTimeOffset left, DateTimeOffset right)
         {
             return IsInSameDay(left.AddDays(-(int)left.DayOfWeek), right.AddDays(-(int)right.DayOfWeek));
         }
