@@ -261,14 +261,11 @@ namespace GatewayServer.Test
 
             while (rw_buf.GetCanReadSize() > 0)
             {
+                int pkt_size = rw_buf.PeekPacketSize();
+                CAssert.IsTrue(rw_buf.GetCanReadSize() >= pkt_size);
+
                 Packet pkt_tmp = PacketManager.Instance.AllocatePacket();
                 CAssert.IsNotNull(pkt_tmp);
-
-                rw_buf.PeekPacketHead(pkt_tmp.Buf);
-                pkt_tmp.SetSize();
-
-                int pkt_size = pkt_tmp.Size;
-                CAssert.IsTrue(rw_buf.GetCanReadSize() >= pkt_size);
 
                 pkt_tmp.Initialize();
                 rw_buf.ReadBytes(pkt_tmp.Buf, pkt_size);

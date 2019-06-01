@@ -65,13 +65,21 @@ namespace Share.Net.Buffer
                 SetEmpty();
             }
         }
-
+        
+        [Obsolete("This function is obsoleted, using PeekPacketSize() instead.", true)]
         public void PeekPacketHead(byte[] buf)
         {
             Debug.Assert(buf.Length >= Packet.PACKET_HEAD_LENGTH);
             Debug.Assert(ValidReadSize(Packet.PACKET_HEAD_LENGTH));
 
             Array.Copy(m_Buffer, m_BufReadIndex, buf, 0, Packet.PACKET_HEAD_LENGTH);
+        }
+
+        public int PeekPacketSize()
+        {
+            ReadOnlySpan<byte> buf_arr = new ReadOnlySpan<byte>(m_Buffer, m_BufReadIndex, 
+                                                                Packet.PACKET_SIZE_LENGTH);
+            return BitConverter.ToInt16(buf_arr);
         }
 
         private void Compact()
@@ -116,7 +124,7 @@ namespace Share.Net.Buffer
         private bool ValidWriteSize(int size)
         {
             ValidIndex();
-            return m_BufWriteIndex + size < BUFFER_MAX_SIZE;
+            return m_BufWriteIndex + size <= BUFFER_MAX_SIZE;
         }
 
         private bool ValidReadSize(int size)

@@ -5,13 +5,13 @@ using System.Diagnostics;
 namespace Share.Net.Packets
 {
     // |----------|---------------|----------|----------|
-    //  包长度（2）  消息编号（4）    保留（4）  数据
+    //  包长度（2）  消息编号（4）    保留（4）    数据
     //
     public class Packet
     {
         public const int DEFAULT_PACKET_BUF_SIZE = 8192;
         private const int PACKET_SIZE_START = 0;
-        private const int PACKET_SIZE_LENGTH = 2;
+        public const int PACKET_SIZE_LENGTH = 2;
         private const int PACKET_ID_START = PACKET_SIZE_LENGTH;
         private const int PACKET_ID_LENGTH = 4;
         private const int PACKET_PRESERVE_START = PACKET_SIZE_LENGTH + PACKET_ID_LENGTH;
