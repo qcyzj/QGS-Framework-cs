@@ -39,6 +39,8 @@ namespace Share.Net.Packets
                 pkt = null;
             }
 
+            m_PacketQueue.Clear();
+
             for (int i = 0; i < m_BufferList.Count; ++i)
             {
                 byte[][] buffer_array = m_BufferList[i];

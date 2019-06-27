@@ -128,13 +128,11 @@ namespace Share.Net.Sessions
             Debug.Assert(m_RecvEventArgs == args);
             Debug.Assert(m_ReceiveBuffer.GetCanWriteSize() >= args.BytesTransferred);
 
-            Array.Copy(args.Buffer, args.Offset, m_ReceiveBuffer.Buffer, m_ReceiveBuffer.WriteIndex, args.BytesTransferred);
-            m_ReceiveBuffer.AddWriteSize(args.BytesTransferred);
+            m_ReceiveBuffer.WriteBytes(args.Buffer, args.Offset, args.BytesTransferred);
 
             int ret = ProcessPackets();
 
             if ((int)SESSION_ERROR.SUCCESS != ret)
-
             { }
         }
 
@@ -151,11 +149,9 @@ namespace Share.Net.Sessions
             int buf_size = m_SendBuffer.GetCanReadSize();
             Debug.Assert(buf_size >= Packet.PACKET_HEAD_LENGTH);
 
-            Array.Copy(m_SendBuffer.Buffer, m_SendBuffer.ReadIndex, args.Buffer, 0, buf_size);
+            m_SendBuffer.ReadBytes(args.Buffer, buf_size);
+
             args.SetBuffer(0, buf_size);
-
-            m_SendBuffer.AddReadSize(buf_size);
-
             return true;
         }
 
@@ -170,39 +166,31 @@ namespace Share.Net.Sessions
                 return ret;
             }
 
-            Packet pkt = PacketManager.Instance.AllocatePacket();
+            int pkt_size = m_ReceiveBuffer.PeekPacketSize();
 
-            m_ReceiveBuffer.PeekPacketHead(pkt.Buf);
-            pkt.SetSize();
-
-            if (pkt.Size < Packet.PACKET_HEAD_LENGTH)
+            if (pkt_size < Packet.PACKET_HEAD_LENGTH)
             {
                 // 消息头部未接收全
 
-                PacketManager.Instance.ReleasePacket(pkt);
                 return ret;
             }
 
-            if (m_ReceiveBuffer.GetCanReadSize() < pkt.Size)
+            if (m_ReceiveBuffer.GetCanReadSize() < pkt_size)
             {
                 // 消息未接收全
 
-                PacketManager.Instance.ReleasePacket(pkt);
                 return ret;
             }
 
-            if (pkt.Size > Packet.DEFAULT_PACKET_BUF_SIZE)
+            if (pkt_size > Packet.DEFAULT_PACKET_BUF_SIZE)
             {
                 // 消息大小异常
-
-                PacketManager.Instance.ReleasePacket(pkt);
 
                 ret = (int)SESSION_ERROR.E_PACKET_SIZE;
                 return ret;
             }
 
-            int pkt_size = pkt.Size;
-
+            Packet pkt = PacketManager.Instance.AllocatePacket();
             pkt.Initialize();
 
             m_ReceiveBuffer.ReadBytes(pkt.Buf, pkt_size);
@@ -220,7 +208,6 @@ namespace Share.Net.Sessions
             }
 
             PacketManager.Instance.ReleasePacket(pkt);
-
             return ret;
         }
 
