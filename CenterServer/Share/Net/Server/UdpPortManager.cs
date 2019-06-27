@@ -43,7 +43,7 @@ namespace Share.Net.Server
             if (m_PortStack.TryPop(out int port))
             {}
             else
-            { 
+            {
                 port = INVALID_UDP_PORT;
             }
 
