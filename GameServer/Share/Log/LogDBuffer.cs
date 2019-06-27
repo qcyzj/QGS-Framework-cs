@@ -9,8 +9,9 @@ namespace Share
     {
         private LogBuf m_WritingBuffer;
         private LogBuf m_ReadingBuffer;
-        private volatile bool m_BufferCanRead;
-        private bool m_ServiceWillStop;
+        private ManualResetEventSlim m_WriteEvent;
+        private ManualResetEventSlim m_ReadEvent;
+        private AutoResetEvent m_AutoEvent;
 
 
         public LogDBuffer()
@@ -18,47 +19,54 @@ namespace Share
             m_WritingBuffer = new LogBuf();
             m_ReadingBuffer = new LogBuf();
 
-            m_BufferCanRead = false;
-            m_ServiceWillStop = false;
+            m_WriteEvent = new ManualResetEventSlim(false);
+            m_ReadEvent = new ManualResetEventSlim(true);
+            m_AutoEvent = new AutoResetEvent(false);
         }
 
 
         public void WriteLog(string log)
         {
             // 多线程写log buffer
+
+            m_ReadEvent.Wait();
+            m_WriteEvent.Reset();
+
             m_WritingBuffer.Add(log);
 
-            if (!m_BufferCanRead && m_WritingBuffer.CanRead())
+            m_WriteEvent.Set();
+
+            if (m_WritingBuffer.CanRead() && 0 == m_ReadingBuffer.Count())
             {
-                m_BufferCanRead = true;
+                m_AutoEvent.Set();
             }
         }
 
         public byte[] ReadLog(StringBuilder tmp_sb, ref bool has_log)
         {
             // 单线程读log buffer
+
             tmp_sb.Clear();
             has_log = false;
-
             byte[] log_array = null;
 
-            if (0 == m_ReadingBuffer.Count())
+            m_AutoEvent.WaitOne();
+
+            m_ReadEvent.Reset();
+            m_WriteEvent.Wait();
+
+            Debug.Assert(0 == m_ReadingBuffer.Count());
+            m_ReadingBuffer = Interlocked.Exchange(ref m_WritingBuffer, m_ReadingBuffer);
+            Debug.Assert(0 == m_WritingBuffer.Count());
+
+            m_ReadEvent.Set();
+
+            if (m_ReadingBuffer.Count() > 0)
             {
-                if (m_BufferCanRead || m_ServiceWillStop)
-                {
-                    m_ReadingBuffer = Interlocked.Exchange(ref m_WritingBuffer, m_ReadingBuffer);
-                    m_BufferCanRead = false;
+                m_ReadingBuffer.Collect(tmp_sb);
 
-                    Debug.Assert(0 == m_WritingBuffer.Count());
-                }
-
-                if (m_ReadingBuffer.Count() > 0)
-                {
-                    m_ReadingBuffer.Collect(tmp_sb);
-
-                    log_array = Encoding.Default.GetBytes(tmp_sb.ToString());
-                    has_log = true;
-                }
+                log_array = Encoding.Default.GetBytes(tmp_sb.ToString());
+                has_log = true;
             }
 
             return log_array;
@@ -71,7 +79,7 @@ namespace Share
 
         public void SetServiceStop()
         {
-            m_ServiceWillStop = true;
+            m_AutoEvent.Set();
         }
 
 

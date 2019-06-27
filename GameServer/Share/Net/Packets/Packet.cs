@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace Share.Net.Packets
 {
     // |----------|---------------|----------|----------|
-    //  包长度（2）  消息编号（4）    保留（4）  数据
+    //  包长度（2）  消息编号（4）    保留（4）    数据
     //
     public class Packet
     {
