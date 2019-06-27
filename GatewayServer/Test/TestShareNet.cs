@@ -237,7 +237,6 @@ namespace GatewayServer.Test
             CAssert.IsNotNull(pkt_read);
 
             rw_buf.ReadBytes(pkt_read.Buf, rw_buf.GetCanReadSize());
-            //rw_buf.Compact();
 
             pkt_read.SetSize();
 

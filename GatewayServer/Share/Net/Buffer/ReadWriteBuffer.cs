@@ -16,11 +16,6 @@ namespace Share.Net.Buffer
         private int m_WriteIndex;
 
 
-        //public byte[] Buffer { get => m_Buffer; }
-        //public int ReadIndex { get => m_ReadIndex; }
-        //public int WriteIndex { get => m_WriteIndex; }
-
-
         public ReadWriteBuffer(byte[] buffer)
         {
             Debug.Assert(null != buffer);
@@ -113,18 +108,6 @@ namespace Share.Net.Buffer
             Debug.Assert(m_WriteIndex <= BUFFER_MAX_SIZE);
             return BUFFER_MAX_SIZE - m_WriteIndex;
         }
-
-        //public void AddReadSize(int size)
-        //{
-        //    Debug.Assert(ValidReadSize(size));
-        //    m_BufReadIndex += size;
-        //}
-
-        //public void AddWriteSize(int size)
-        //{
-        //    Debug.Assert(ValidWriteSize(size));
-        //    m_BufWriteIndex += size;
-        //}
 
 
         private bool ValidWriteSize(int size)

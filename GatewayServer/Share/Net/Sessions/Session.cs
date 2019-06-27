@@ -133,8 +133,6 @@ namespace Share.Net.Sessions
             Debug.Assert(m_ReceiveBuffer.GetCanWriteSize() >= args.BytesTransferred);
 
             m_ReceiveBuffer.WriteBytes(args.Buffer, args.Offset, args.BytesTransferred);
-            //Array.Copy(args.Buffer, args.Offset, m_ReceiveBuffer.Buffer, m_ReceiveBuffer.WriteIndex, args.BytesTransferred);
-            //m_ReceiveBuffer.AddWriteSize(args.BytesTransferred);
 
             int ret = ProcessPackets();
 
@@ -156,8 +154,6 @@ namespace Share.Net.Sessions
             Debug.Assert(buf_size >= Packet.PACKET_HEAD_LENGTH);
 
             m_SendBuffer.ReadBytes(args.Buffer, buf_size);
-            //Array.Copy(m_SendBuffer.Buffer, m_SendBuffer.ReadIndex, args.Buffer, 0, buf_size);
-            //m_SendBuffer.AddReadSize(buf_size);
 
             args.SetBuffer(0, buf_size);
             return true;
