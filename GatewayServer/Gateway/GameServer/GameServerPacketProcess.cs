@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-using Share;
+using Share.Logs;
 using Share.Net.Packets;
 
 namespace GatewayServer.Gateway.GameServers

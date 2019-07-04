@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-using Share;
+using Share.Logs;
 using Share.Config;
 using Share.Net.Packets;
 

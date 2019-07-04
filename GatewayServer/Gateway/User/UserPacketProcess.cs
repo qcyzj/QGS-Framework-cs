@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Diagnostics;
 
-using Share;
+using Share.Logs;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 

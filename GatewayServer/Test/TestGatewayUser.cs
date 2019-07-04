@@ -3,7 +3,7 @@ using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
 
-using Share;
+using Share.Logs;
 using Share.Net.Sessions;
 
 using GatewayServer.Gateway.Users;

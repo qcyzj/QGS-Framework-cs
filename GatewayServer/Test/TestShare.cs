@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 
 using Share;
+using Share.Logs;
 
 namespace GatewayServer.Test
 {

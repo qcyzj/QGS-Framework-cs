@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Diagnostics;
 
-namespace Share
+namespace Share.Logs
 {
     public sealed class Log
     {
