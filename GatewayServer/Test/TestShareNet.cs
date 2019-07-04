@@ -284,7 +284,7 @@ namespace GatewayServer.Test
             CAssert.AreEqual(ReadWriteBuffer.BUFFER_MAX_SIZE, rw_buf.GetCanWriteSize());
 
             rw_buf.Release();
-            CAssert.IsNull(rw_buf.Buffer);
+            //CAssert.IsNull(rw_buf.Buffer);
         }
 
 
