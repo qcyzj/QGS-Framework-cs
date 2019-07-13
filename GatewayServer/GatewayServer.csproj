@@ -7,10 +7,11 @@
 
   <ItemGroup>
     <Folder Include="Gateway\WinService\" />
-    <Folder Include="Share\Message\" />
+    <Folder Include="Test\ProtoBuf\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.9.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
   </ItemGroup>
 

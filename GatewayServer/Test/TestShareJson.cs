@@ -64,7 +64,7 @@ namespace GatewayServer.Test
             CAssert.AreEqual((string)json_array[1], List_Value_2);
             CAssert.AreEqual((string)json_array[2], List_Value_3);
 
-            string json_string = test_json.ToJsonString();
+            string json_string = test_json.ToString();
             JsonData test_two_json = new JsonData(json_string);
             CAssert.AreEqual(test_two_json[Key_Name], test_json[Key_Name]);
             CAssert.AreEqual(test_two_json[Key_Price], test_json[Key_Price]);

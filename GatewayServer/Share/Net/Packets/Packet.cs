@@ -2,21 +2,33 @@
 using System.Text;
 using System.Diagnostics;
 
+using Share.Json;
+using Share.Net.Message;
+
 namespace Share.Net.Packets
 {
-    // |----------|---------------|----------|----------|
-    //  包长度（2）  消息编号（4）    保留（4）    数据
+    // |----------|-------------|---------|---------------|----------------|
+    //  包长度（2）  包编号（4）   保留（4）   消息类型（1）      消息内容   
     //
     public class Packet
     {
-        public const int DEFAULT_PACKET_BUF_SIZE = 8192;
+        public  const int DEFAULT_PACKET_BUF_SIZE = 8192;
         private const int PACKET_SIZE_START = 0;
-        public const int PACKET_SIZE_LENGTH = 2;
+        public  const int PACKET_SIZE_LENGTH = 2;
         private const int PACKET_ID_START = PACKET_SIZE_LENGTH;
         private const int PACKET_ID_LENGTH = 4;
-        private const int PACKET_PRESERVE_START = PACKET_SIZE_LENGTH + PACKET_ID_LENGTH;
+        private const int PACKET_PRESERVE_START = PACKET_ID_START + PACKET_ID_LENGTH;
         private const int PACKET_PRESERVE_LENGTH = 4;
-        public const int PACKET_HEAD_LENGTH = PACKET_PRESERVE_START + PACKET_PRESERVE_LENGTH;
+        private const int PACKET_TYPE_START = PACKET_PRESERVE_START + PACKET_PRESERVE_LENGTH;
+        private const int PACKET_TYPE_LENGTH = 1;
+        public  const int PACKET_HEAD_LENGTH = PACKET_TYPE_START + PACKET_TYPE_LENGTH;
+
+        private enum MESSAGE_TYPE : byte
+        {
+            PROTO_BUF = 0,
+            JSON_DATA = 1,
+            CUSTOM_MSG = 2,
+        }
 
 
         private byte[] m_Buffer;
@@ -81,9 +93,44 @@ namespace Share.Net.Packets
         }
 
 
+        private void SetMessageType(MESSAGE_TYPE m_type)
+        {
+            Span<byte> type = new Span<byte>(m_Buffer, PACKET_TYPE_START, 
+                                             PACKET_TYPE_LENGTH);
+            type[0] = (byte)m_type;
+        }
+
+        private byte GetMessageType()
+        {
+            ReadOnlySpan<byte> type = new ReadOnlySpan<byte>(m_Buffer, PACKET_TYPE_START,
+                                                             PACKET_TYPE_LENGTH);
+            return type[0];
+        }
+
+
         public void ResetBufferIndex()
         {
             m_BufferIndex = PACKET_HEAD_LENGTH;
+        }
+        
+
+        private bool ValidSize(int size)
+        {
+            return m_BufferIndex + size < DEFAULT_PACKET_BUF_SIZE;
+        }
+
+        public bool Valid()
+        {
+            if ((m_PacketSize <= DEFAULT_PACKET_BUF_SIZE) &&
+                (PACKET_HEAD_LENGTH == m_BufferIndex) &&
+                (0 != GetPacketID()))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
 
@@ -279,23 +326,30 @@ namespace Share.Net.Packets
         }
 
 
-        private bool ValidSize(int size)
+        public Packet AddJsonData(JsonData json)
         {
-            return m_BufferIndex + size < DEFAULT_PACKET_BUF_SIZE;
+            SetMessageType(MESSAGE_TYPE.JSON_DATA);
+            return AddString(json.ToString());
         }
 
-        public bool Valid()
+        public JsonData GetJsonData()
         {
-            if ((m_PacketSize <= DEFAULT_PACKET_BUF_SIZE) &&
-                (PACKET_HEAD_LENGTH == m_BufferIndex) &&
-                (0 != GetPacketID()))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            Debug.Assert((byte)MESSAGE_TYPE.JSON_DATA == GetMessageType());
+            string str_msg = GetString();
+            return new JsonData(str_msg)
+        }
+
+
+        public Packet AddProtoBuf(byte[] buf)
+        {
+
+
+            return this;
+        }
+
+        public void GetProtoBuf()
+        {
+
         }
     }
 }
