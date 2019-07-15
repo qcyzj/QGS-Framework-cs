@@ -3,7 +3,6 @@ using System.Text;
 using System.Diagnostics;
 
 using Share.Json;
-using Share.Net.Message;
 
 namespace Share.Net.Packets
 {
@@ -225,6 +224,7 @@ namespace Share.Net.Packets
         public Packet AddString(string str)
         {
             byte[] str_arry = Encoding.Default.GetBytes(str);
+            return AddByteArray(str_arry);
 
             short size = (short)str_arry.Length;
             Debug.Assert(ValidSize(size));
@@ -340,16 +340,31 @@ namespace Share.Net.Packets
         }
 
 
-        public Packet AddProtoBuf(byte[] buf)
+        public Packet AddByteArray(byte[] array)
         {
+            Debug.Assert(null != array);
 
+            short size = (short)array.Length;
+            Debug.Assert(ValidSize(size));
 
+            AddShort(size);
+
+            Array.Copy(array, 0, m_Buffer, m_BufferIndex, size);
+            m_BufferIndex += size;
+
+            AddSize(size);
             return this;
         }
 
-        public void GetProtoBuf()
+        public byte[] GetByteArray()
         {
+            short array_length = GetShort();
+            byte[] array = new byte[array_length];
 
+            Array.Copy(m_Buffer, m_BufferIndex, array, 0, array_length);
+            m_BufferIndex += array_length;
+
+            return array;
         }
     }
 }

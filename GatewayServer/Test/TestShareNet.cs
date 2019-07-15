@@ -9,6 +9,8 @@ using Share.Net.Sessions;
 
 using GatewayServer.Gateway;
 using GatewayServer.Gateway.Users;
+using GatewayServer.Test.ProtoBuf;
+using Google.Protobuf;
 
 namespace GatewayServer.Test
 {
@@ -47,6 +49,12 @@ namespace GatewayServer.Test
         }
 
         private void Test_Share_Net_Packet()
+        {
+            Test_Share_Net_Packet_Custom();
+            Test_Share_Net_Packet_Json();
+            Test_Share_Net_Packet_ProtoBuf();
+        }
+        private void Test_Share_Net_Packet_Custom()
         {
             byte[] buffer = new byte[Packet.DEFAULT_PACKET_BUF_SIZE];
 
@@ -107,6 +115,50 @@ namespace GatewayServer.Test
 
             string str_get = pkt.GetString();
             CAssert.AreEqual(str_get, str_test);
+
+            pkt.Release();
+            CAssert.IsNull(pkt.Buf);
+
+            buffer = null;
+        }
+
+        private void Test_Share_Net_Packet_Json()
+        {
+
+        }
+
+        private void Test_Share_Net_Packet_ProtoBuf()
+        {
+            byte[] buffer = new byte[Packet.DEFAULT_PACKET_BUF_SIZE];
+
+            Packet pkt = new Packet(buffer);
+            pkt.Initialize();
+
+            CAssert.AreEqual(buffer, pkt.Buf);
+            CAssert.AreEqual((int)pkt.Size, Packet.PACKET_HEAD_LENGTH);
+
+            pkt.SetPacketID(Protocol.CLI_GW_ENTER_TEST);
+            CAssert.AreEqual(pkt.GetPacketID(), Protocol.CLI_GW_ENTER_TEST);
+
+            Person john = new Person()
+            {
+                Name = "John",
+                Id = 1,
+                Email = "John@123.com",
+                Phones = { new Person.Types.PhoneNumber() { Number = "1234-4321",
+                                                            Type = Person.Types.PhoneType.Home} }
+            };
+
+            pkt.AddByteArray(john.ToByteArray());
+
+            int total_size = Packet.PACKET_HEAD_LENGTH + john.ToByteArray().Length;
+            CAssert.AreEqual(total_size, (int)pkt.Size);
+
+            Person john_get = Person.Parser.ParseFrom(pkt.GetByteArray());
+            CAssert.Equals(john_get.Name, john.Name);
+            CAssert.Equals(john_get.Id, john.Id);
+            CAssert.Equals(john_get.Email, john.Email);
+            CAssert.Equals(john_get.Phones, john.Phones);
 
             pkt.Release();
             CAssert.IsNull(pkt.Buf);

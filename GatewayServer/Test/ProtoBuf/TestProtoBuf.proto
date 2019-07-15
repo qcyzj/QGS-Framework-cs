@@ -1,7 +1,7 @@
-syntex = "proto3";
+syntax = "proto3";
 package qgs_proto_buf_test;
 
-option csharp_namespace = "GatewayServer.Test.ProtoBuf.Test";
+option csharp_namespace = "GatewayServer.Test.ProtoBuf";
 
 
 message Person {
