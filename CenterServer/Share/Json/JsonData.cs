@@ -26,10 +26,10 @@ namespace Share.Json
             set { m_Root[key] = value; }
         }
 
-        public string ToJsonString()
+        public override string ToString()
         {
             return m_Root.ToString();
-        }            
+        }
     }
 
     public class JsonArray
@@ -64,7 +64,7 @@ namespace Share.Json
         }
     }
 
-    public static class JsonHelper
+    public static class JsonHelper 
     {
         public static T DeserializeJsonToObject<T>(string json_string) where T : class
         {
@@ -73,7 +73,7 @@ namespace Share.Json
 
         public static T DeserializeJsonDataToObject<T>(JsonData json_string) where T : class
         {
-            return JsonConvert.DeserializeObject<T>(json_string.ToJsonString());
+            return JsonConvert.DeserializeObject<T>(json_string.ToString());
         }
 
         public static string SerializeObjectToJson(object obj)

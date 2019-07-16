@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Share
+namespace Share.Logs
 {
     public static class LogManager
     {

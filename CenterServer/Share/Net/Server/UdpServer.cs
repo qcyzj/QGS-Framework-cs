@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net.Sockets;
 
+using Share.Logs;
 using Share.Config;
 using Share.Net.Packets;
 using Share.Net.Sessions;
