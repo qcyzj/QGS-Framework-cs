@@ -3,6 +3,7 @@ using System.Net;
 using System.Diagnostics;
 using System.Net.Sockets;
 
+using Share.Logs;
 using Share.Net.Buffer;
 using Share.Net.Packets;
 

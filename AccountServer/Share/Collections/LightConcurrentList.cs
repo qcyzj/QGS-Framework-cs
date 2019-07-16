@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Share
+namespace Share.Collections
 {
     public class LightConcurrentList<T> : IEnumerable<T>, IEnumerable
     {

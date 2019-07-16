@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 
 using Share;
+using Share.Logs;
 using Share.Config;
 using Share.Net.Buffer;
 using Share.Net.Packets;

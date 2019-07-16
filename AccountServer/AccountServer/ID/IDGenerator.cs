@@ -1,5 +1,6 @@
 ﻿
 using Share;
+using Share.Logs;
 
 namespace AccountServer.AccountServer.ID
 {
