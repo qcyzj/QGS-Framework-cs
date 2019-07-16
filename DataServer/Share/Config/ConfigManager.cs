@@ -1,5 +1,6 @@
 ﻿using System.IO;
 
+using Share.Logs;
 using Share.Json;
 
 namespace Share.Config

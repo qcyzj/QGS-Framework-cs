@@ -2,6 +2,7 @@
 using System.Threading;
 
 using Share;
+using Share.Logs;
 using Share.Config;
 
 namespace DataServer.DataServer.WinService
