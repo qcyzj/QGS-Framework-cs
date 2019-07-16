@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 
+using Share.Logs;
+
 using MySql.Data.MySqlClient;
 
 namespace Share.DB.MySql

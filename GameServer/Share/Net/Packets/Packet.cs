@@ -2,21 +2,34 @@
 using System.Text;
 using System.Diagnostics;
 
+using Share.Json;
+
+using Google.Protobuf;
+
 namespace Share.Net.Packets
 {
-    // |----------|---------------|----------|----------|
-    //  包长度（2）  消息编号（4）    保留（4）    数据
+    // |----------|-------------|---------|---------------|----------------|
+    //  包长度（2）  包编号（4）   保留（4）   消息类型（1）      消息内容   
     //
     public class Packet
     {
-        public const int DEFAULT_PACKET_BUF_SIZE = 8192;
+        public  const int DEFAULT_PACKET_BUF_SIZE = 8192;
         private const int PACKET_SIZE_START = 0;
-        public const int PACKET_SIZE_LENGTH = 2;
+        public  const int PACKET_SIZE_LENGTH = 2;
         private const int PACKET_ID_START = PACKET_SIZE_LENGTH;
         private const int PACKET_ID_LENGTH = 4;
-        private const int PACKET_PRESERVE_START = PACKET_SIZE_LENGTH + PACKET_ID_LENGTH;
+        private const int PACKET_PRESERVE_START = PACKET_ID_START + PACKET_ID_LENGTH;
         private const int PACKET_PRESERVE_LENGTH = 4;
-        public const int PACKET_HEAD_LENGTH = PACKET_PRESERVE_START + PACKET_PRESERVE_LENGTH;
+        private const int PACKET_TYPE_START = PACKET_PRESERVE_START + PACKET_PRESERVE_LENGTH;
+        private const int PACKET_TYPE_LENGTH = 1;
+        public  const int PACKET_HEAD_LENGTH = PACKET_TYPE_START + PACKET_TYPE_LENGTH;
+
+        private enum MESSAGE_TYPE : byte
+        {
+            CUSTOM_MSG = 0,
+            JSON_DATA = 1,
+            PROTO_BUF = 2,
+        }
 
 
         private byte[] m_Buffer;
@@ -25,7 +38,7 @@ namespace Share.Net.Packets
 
 
         public byte[] Buf { get { return m_Buffer; } }
-        public short Size { get{ return m_PacketSize; } }
+        public short Size { get { return m_PacketSize; } }
 
 
         public Packet(byte[] buffer)
@@ -41,6 +54,7 @@ namespace Share.Net.Packets
             m_BufferIndex = PACKET_HEAD_LENGTH;
 
             AddDefaultSize();
+            SetMessageType(MESSAGE_TYPE.CUSTOM_MSG);
         }
 
         public void Release()
@@ -81,12 +95,48 @@ namespace Share.Net.Packets
         }
 
 
+        private void SetMessageType(MESSAGE_TYPE m_type)
+        {
+            Span<byte> type = new Span<byte>(m_Buffer, PACKET_TYPE_START, 
+                                             PACKET_TYPE_LENGTH);
+            type[0] = (byte)m_type;
+        }
+
+        private byte GetMessageType()
+        {
+            ReadOnlySpan<byte> type = new ReadOnlySpan<byte>(m_Buffer, PACKET_TYPE_START,
+                                                             PACKET_TYPE_LENGTH);
+            return type[0];
+        }
+
+
         public void ResetBufferIndex()
         {
             m_BufferIndex = PACKET_HEAD_LENGTH;
         }
+        
+
+        private bool ValidSize(int size)
+        {
+            return m_BufferIndex + size < DEFAULT_PACKET_BUF_SIZE;
+        }
+
+        public bool Valid()
+        {
+            if ((m_PacketSize <= DEFAULT_PACKET_BUF_SIZE) &&
+                (PACKET_HEAD_LENGTH == m_BufferIndex) &&
+                (0 != GetPacketID()))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
 
+        // support custom message
         public Packet AddInt(int value)
         {
             short size = (short)sizeof(int);
@@ -178,13 +228,19 @@ namespace Share.Net.Packets
         public Packet AddString(string str)
         {
             byte[] str_arry = Encoding.Default.GetBytes(str);
+            return AddByteArray(str_arry);
+        }
 
-            short size = (short)str_arry.Length;
+        private Packet AddByteArray(byte[] array)
+        {
+            Debug.Assert(null != array);
+
+            short size = (short)array.Length;
             Debug.Assert(ValidSize(size));
 
             AddShort(size);
 
-            Array.Copy(str_arry, 0, m_Buffer, m_BufferIndex, size);
+            Array.Copy(array, 0, m_Buffer, m_BufferIndex, size);
             m_BufferIndex += size;
 
             AddSize(size);
@@ -279,23 +335,39 @@ namespace Share.Net.Packets
         }
 
 
-        private bool ValidSize(int size)
+        // support json data message
+        public Packet AddJsonData(JsonData json)
         {
-            return m_BufferIndex + size < DEFAULT_PACKET_BUF_SIZE;
+            SetMessageType(MESSAGE_TYPE.JSON_DATA);
+            return AddString(json.ToString());
         }
 
-        public bool Valid()
+        public JsonData GetJsonData()
         {
-            if ((m_PacketSize <= DEFAULT_PACKET_BUF_SIZE) &&
-                (PACKET_HEAD_LENGTH == m_BufferIndex) &&
-                (0 != GetPacketID()))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            Debug.Assert((byte)MESSAGE_TYPE.JSON_DATA == GetMessageType());
+            string str_msg = GetString();
+            return new JsonData(str_msg);
+        }
+
+
+        // support protobuf message
+        public Packet AddProtoBuf(Google.Protobuf.IMessage msg)
+        {
+            SetMessageType(MESSAGE_TYPE.PROTO_BUF);
+            return AddByteArray(msg.ToByteArray());
+        }
+
+        public byte[] GetProtoBuf()
+        {
+            Debug.Assert((byte)MESSAGE_TYPE.PROTO_BUF == GetMessageType());
+
+            short array_length = GetShort();
+            byte[] array = new byte[array_length];
+
+            Array.Copy(m_Buffer, m_BufferIndex, array, 0, array_length);
+            m_BufferIndex += array_length;
+
+            return array;
         }
     }
 }

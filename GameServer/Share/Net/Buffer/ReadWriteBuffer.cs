@@ -65,7 +65,7 @@ namespace Share.Net.Buffer
                 SetEmpty();
             }
         }
-
+        
         [Obsolete("This function is obsoleted, using PeekPacketSize() instead.", true)]
         public void PeekPacketHead(byte[] buf)
         {
@@ -77,7 +77,7 @@ namespace Share.Net.Buffer
 
         public int PeekPacketSize()
         {
-            ReadOnlySpan<byte> buf_arr = new ReadOnlySpan<byte>(m_Buffer, m_ReadIndex,
+            ReadOnlySpan<byte> buf_arr = new ReadOnlySpan<byte>(m_Buffer, m_ReadIndex, 
                                                                 Packet.PACKET_SIZE_LENGTH);
             return BitConverter.ToInt16(buf_arr);
         }
