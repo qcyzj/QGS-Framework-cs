@@ -2,6 +2,7 @@
 using System.Threading;
 
 using Share;
+using Share.Logs;
 using Share.Net.Buffer;
 using Share.Net.Packets;
 using Share.Net.Sessions;

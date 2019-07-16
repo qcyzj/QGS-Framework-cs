@@ -3,6 +3,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
 
+using Share.Logs;
+
 namespace Share.Net.Sessions
 {
     public sealed class TcpSession : Session

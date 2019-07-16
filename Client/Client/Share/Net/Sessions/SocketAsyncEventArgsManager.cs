@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Collections.Generic;
 
+using Share;
 using Share.Net.Buffer;
 
 namespace Share.Net.Sessions

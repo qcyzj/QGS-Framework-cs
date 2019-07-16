@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Collections.Generic;
 
+using Share.Logs;
+
 namespace Share.Net.Packets
 {
     public class PacketProcessManager : Singleton<PacketProcessManager>
