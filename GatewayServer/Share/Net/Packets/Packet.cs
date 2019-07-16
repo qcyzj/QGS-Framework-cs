@@ -4,6 +4,8 @@ using System.Diagnostics;
 
 using Share.Json;
 
+using Google.Protobuf;
+
 namespace Share.Net.Packets
 {
     // |----------|-------------|---------|---------------|----------------|
@@ -24,9 +26,9 @@ namespace Share.Net.Packets
 
         private enum MESSAGE_TYPE : byte
         {
-            PROTO_BUF = 0,
+            CUSTOM_MSG = 0,
             JSON_DATA = 1,
-            CUSTOM_MSG = 2,
+            PROTO_BUF = 2,
         }
 
 
@@ -36,7 +38,7 @@ namespace Share.Net.Packets
 
 
         public byte[] Buf { get { return m_Buffer; } }
-        public short Size { get{ return m_PacketSize; } }
+        public short Size { get { return m_PacketSize; } }
 
 
         public Packet(byte[] buffer)
@@ -52,6 +54,7 @@ namespace Share.Net.Packets
             m_BufferIndex = PACKET_HEAD_LENGTH;
 
             AddDefaultSize();
+            SetMessageType(MESSAGE_TYPE.CUSTOM_MSG);
         }
 
         public void Release()
@@ -133,6 +136,7 @@ namespace Share.Net.Packets
         }
 
 
+        // support custom message
         public Packet AddInt(int value)
         {
             short size = (short)sizeof(int);
@@ -225,13 +229,18 @@ namespace Share.Net.Packets
         {
             byte[] str_arry = Encoding.Default.GetBytes(str);
             return AddByteArray(str_arry);
+        }
 
-            short size = (short)str_arry.Length;
+        private Packet AddByteArray(byte[] array)
+        {
+            Debug.Assert(null != array);
+
+            short size = (short)array.Length;
             Debug.Assert(ValidSize(size));
 
             AddShort(size);
 
-            Array.Copy(str_arry, 0, m_Buffer, m_BufferIndex, size);
+            Array.Copy(array, 0, m_Buffer, m_BufferIndex, size);
             m_BufferIndex += size;
 
             AddSize(size);
@@ -326,6 +335,7 @@ namespace Share.Net.Packets
         }
 
 
+        // support json data message
         public Packet AddJsonData(JsonData json)
         {
             SetMessageType(MESSAGE_TYPE.JSON_DATA);
@@ -336,28 +346,21 @@ namespace Share.Net.Packets
         {
             Debug.Assert((byte)MESSAGE_TYPE.JSON_DATA == GetMessageType());
             string str_msg = GetString();
-            return new JsonData(str_msg)
+            return new JsonData(str_msg);
         }
 
 
-        public Packet AddByteArray(byte[] array)
+        // support protobuf message
+        public Packet AddProtoBuf(Google.Protobuf.IMessage msg)
         {
-            Debug.Assert(null != array);
-
-            short size = (short)array.Length;
-            Debug.Assert(ValidSize(size));
-
-            AddShort(size);
-
-            Array.Copy(array, 0, m_Buffer, m_BufferIndex, size);
-            m_BufferIndex += size;
-
-            AddSize(size);
-            return this;
+            SetMessageType(MESSAGE_TYPE.PROTO_BUF);
+            return AddByteArray(msg.ToByteArray());
         }
 
-        public byte[] GetByteArray()
+        public byte[] GetProtoBuf()
         {
+            Debug.Assert((byte)MESSAGE_TYPE.PROTO_BUF == GetMessageType());
+
             short array_length = GetShort();
             byte[] array = new byte[array_length];
 

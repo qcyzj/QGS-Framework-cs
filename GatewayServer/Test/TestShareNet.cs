@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Collections.Generic;
 
 using Share.Logs;
+using Share.Json;
 using Share.Net.Buffer;
 using Share.Net.Packets;
 using Share.Net.Sessions;
@@ -10,7 +11,9 @@ using Share.Net.Sessions;
 using GatewayServer.Gateway;
 using GatewayServer.Gateway.Users;
 using GatewayServer.Test.ProtoBuf;
+
 using Google.Protobuf;
+using Newtonsoft.Json.Linq;
 
 namespace GatewayServer.Test
 {
@@ -54,6 +57,7 @@ namespace GatewayServer.Test
             Test_Share_Net_Packet_Json();
             Test_Share_Net_Packet_ProtoBuf();
         }
+
         private void Test_Share_Net_Packet_Custom()
         {
             byte[] buffer = new byte[Packet.DEFAULT_PACKET_BUF_SIZE];
@@ -124,7 +128,58 @@ namespace GatewayServer.Test
 
         private void Test_Share_Net_Packet_Json()
         {
+            byte[] buffer = new byte[Packet.DEFAULT_PACKET_BUF_SIZE];
 
+            Packet pkt = new Packet(buffer);
+            pkt.Initialize();
+
+            CAssert.AreEqual(buffer, pkt.Buf);
+            CAssert.AreEqual((int)pkt.Size, Packet.PACKET_HEAD_LENGTH);
+
+            pkt.SetPacketID(Protocol.CLI_GW_ENTER_TEST);
+            CAssert.AreEqual(pkt.GetPacketID(), Protocol.CLI_GW_ENTER_TEST);
+
+            string Key_Name = "Name";
+            string Key_Price = "Price";
+            string Key_List = "TL";
+
+            string Value_Name = "Apple";
+            int Value_Price = 100;
+            string List_Value_1 = "1";
+            string List_Value_2 = "2";
+            string List_Value_3 = "3";
+
+            JsonData test_json = new JsonData();
+            test_json[Key_Name] = Value_Name;
+            test_json[Key_Price] = Value_Price;
+
+            JsonArray test_array = new JsonArray();
+            test_array.Add(List_Value_1);
+            test_array.Add(List_Value_2);
+            test_array.Add(List_Value_3);
+            test_json[Key_List] = test_array.Root;
+
+            pkt.AddJsonData(test_json);
+
+            int total_size = Packet.PACKET_HEAD_LENGTH + sizeof(short) + test_json.ToString().Length;
+            CAssert.AreEqual(total_size, (int)pkt.Size);
+
+            pkt.ResetBufferIndex();
+
+            JsonData get_json = pkt.GetJsonData();
+            CAssert.AreEqual(get_json[Key_Name], test_json[Key_Name]);
+            CAssert.AreEqual(get_json[Key_Price], test_json[Key_Price]);
+            CAssert.AreEqual(JTokenType.Array, get_json[Key_List].Type);
+
+            JsonArray get_array = new JsonArray(get_json[Key_List]);
+            CAssert.AreEqual((string)get_array[0], List_Value_1);
+            CAssert.AreEqual((string)get_array[1], List_Value_2);
+            CAssert.AreEqual((string)get_array[2], List_Value_3);
+
+            pkt.Release();
+            CAssert.IsNull(pkt.Buf);
+
+            buffer = null;
         }
 
         private void Test_Share_Net_Packet_ProtoBuf()
@@ -149,16 +204,18 @@ namespace GatewayServer.Test
                                                             Type = Person.Types.PhoneType.Home} }
             };
 
-            pkt.AddByteArray(john.ToByteArray());
+            pkt.AddProtoBuf(john);
 
-            int total_size = Packet.PACKET_HEAD_LENGTH + john.ToByteArray().Length;
+            int total_size = Packet.PACKET_HEAD_LENGTH + sizeof(short) + john.ToByteArray().Length;
             CAssert.AreEqual(total_size, (int)pkt.Size);
 
-            Person john_get = Person.Parser.ParseFrom(pkt.GetByteArray());
-            CAssert.Equals(john_get.Name, john.Name);
-            CAssert.Equals(john_get.Id, john.Id);
-            CAssert.Equals(john_get.Email, john.Email);
-            CAssert.Equals(john_get.Phones, john.Phones);
+            pkt.ResetBufferIndex();
+
+            Person john_get = Person.Parser.ParseFrom(pkt.GetProtoBuf());
+            CAssert.AreEqual(john_get.Name, john.Name);
+            CAssert.AreEqual(john_get.Id, john.Id);
+            CAssert.AreEqual(john_get.Email, john.Email);
+            CAssert.AreEqual(john_get.Phones, john.Phones);
 
             pkt.Release();
             CAssert.IsNull(pkt.Buf);
