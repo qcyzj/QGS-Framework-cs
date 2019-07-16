@@ -32,6 +32,11 @@ namespace Share
             return cur.Date.AddDays(1);
         }
 
+        public static long GetCurMilliseconds()
+        {
+            return (long)(DateTimeOffset.UtcNow - min_time).TotalMilliseconds;
+        }
+
 
         public static bool IsInSameDay(DateTimeOffset left, DateTimeOffset right)
         {
