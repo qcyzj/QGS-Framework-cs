@@ -85,7 +85,7 @@ namespace Share.Net.WebSockets
                 NetworkStream stream = client.GetStream();
                 WebSocketContextImpl context = ReadHttpHeaderFromStream(stream);
 
-                if (context.IsWebSocketRequest)
+                if (null != context && context.IsWebSocketRequest)
                 {
                     WebSocket websocket = context.WebSocket;
 
@@ -108,10 +108,16 @@ namespace Share.Net.WebSockets
 
         private WebSocketContextImpl ReadHttpHeaderFromStream(NetworkStream stream)
         {
-            string header = WebSocketHttpHelper.ReadHttpHeader(stream);
+            string http_header = WebSocketHttpHelper.ReadHttpHeader(stream);
 
-
-            return new WebSocketContextImpl();
+            if (string.Empty != http_header)
+            {
+                return new WebSocketContextImpl(http_header);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

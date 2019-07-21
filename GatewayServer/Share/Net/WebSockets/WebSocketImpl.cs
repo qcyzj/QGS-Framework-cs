@@ -19,12 +19,12 @@ namespace Share.Net.WebSockets
         public override string SubProtocol { get { return m_SubProtocol; } }
 
 
-        public WebSocketImpl()
+        public WebSocketImpl(string sub_protocol)
         {
-            m_State = WebSocketState.Closed;
+            m_State = WebSocketState.Connecting;
             m_CloseStatusDesc = string.Empty;
             m_CloseStatus = null;
-            m_SubProtocol = string.Empty;
+            m_SubProtocol = sub_protocol;
         }
 
 
