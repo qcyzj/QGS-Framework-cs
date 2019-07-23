@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 
+using Share.Json;
 using Share.Net.Packets;
 using Share.Net.Sessions;
 
@@ -69,6 +70,24 @@ namespace GatewayServer.Gateway.Users
             }
 
             PacketManager.Instance.ReleasePacket(pkt);
+        }
+
+        private void SendJsonData(int packet_id, JsonData json)
+        {
+            Packet pkt = PacketManager.Instance.AllocatePacket();
+            pkt.SetPacketID(packet_id);
+            pkt.AddJsonData(json);
+
+            SendPacket(pkt);
+        }
+
+        private void SendProtoBuf(int packet_id, Google.Protobuf.IMessage msg)
+        {
+            Packet pkt = PacketManager.Instance.AllocatePacket();
+            pkt.SetPacketID(packet_id);
+            pkt.AddProtoBuf(msg);
+
+            SendPacket(pkt);
         }
     }
 }
