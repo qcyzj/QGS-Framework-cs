@@ -50,7 +50,7 @@ namespace Share.Net.WebSockets
 
             ParseHttpHeader(http_header);
 
-            m_User = 
+            //m_User = 
             m_WebSocket = new WebSocketImpl(m_SubProtocol, source);
         }
 
