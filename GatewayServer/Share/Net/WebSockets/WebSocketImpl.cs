@@ -11,6 +11,7 @@ namespace Share.Net.WebSockets
         private string m_CloseStatusDesc;
         private WebSocketCloseStatus? m_CloseStatus;
         private string m_SubProtocol;
+        private CancellationTokenSource m_Source;
 
 
         public override WebSocketState State { get { return m_State; } }
@@ -19,33 +20,46 @@ namespace Share.Net.WebSockets
         public override string SubProtocol { get { return m_SubProtocol; } }
 
 
-        public WebSocketImpl(string sub_protocol)
+        public WebSocketImpl(string sub_protocol, CancellationTokenSource source)
         {
             m_State = WebSocketState.Connecting;
             m_CloseStatusDesc = string.Empty;
             m_CloseStatus = null;
             m_SubProtocol = sub_protocol;
+            m_Source = source;
         }
 
 
         public override void Abort()
         {
-            throw new System.NotImplementedException();
+            m_State = WebSocketState.Aborted;
+            m_Source.Cancel();
         }
 
-        public override Task CloseAsync(WebSocketCloseStatus closeStatus, string statusDescription, CancellationToken cancellationToken)
+        public override async Task CloseAsync(WebSocketCloseStatus closeStatus, 
+                                              string statusDescription, 
+                                              CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            if (WebSocketState.Open == m_State)
+            {
+
+                m_State = WebSocketState.CloseSent;
+            }
         }
 
-        public override Task CloseOutputAsync(WebSocketCloseStatus closeStatus, string statusDescription, CancellationToken cancellationToken)
+        public override Task CloseOutputAsync(WebSocketCloseStatus closeStatus, 
+                                              string statusDescription, 
+                                              CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
         }
 
         public override void Dispose()
         {
-            throw new System.NotImplementedException();
+            if (WebSocketState.Open == m_State)
+            {
+
+            }
         }
 
 

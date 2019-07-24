@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Security.Principal;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Text.RegularExpressions;
-using System.Linq;
+using System.Threading;
 
 namespace Share.Net.WebSockets
 {
@@ -41,15 +41,17 @@ namespace Share.Net.WebSockets
         public override IPrincipal User { get { return m_User; } }
         public override WebSocket WebSocket { get { return m_WebSocket; } }
         public bool IsWebSocketRequest { get { return m_IsWebSocketRequest; } }
+        public string SubProtocol { get { return m_SubProtocol; } }
 
 
-        public WebSocketContextImpl(string http_header)
+        public WebSocketContextImpl(string http_header, CancellationTokenSource source)
         {
             m_Orign = http_header;
 
             ParseHttpHeader(http_header);
 
-            m_WebSocket = new WebSocketImpl(m_SubProtocol);
+            m_User = 
+            m_WebSocket = new WebSocketImpl(m_SubProtocol, source);
         }
 
 
@@ -83,6 +85,10 @@ namespace Share.Net.WebSockets
                 m_Headers.Add("Sec-WebSocket-Key", value);
                 m_SecWebSocketKey = value;
             }
+            else
+            {
+                m_SecWebSocketKey = string.Empty;
+            }
 
             if(WebSocketHttpHelper.ParseHttpHeaderSecWebSocketVersionField(http_header, out value))
             {
@@ -96,6 +102,10 @@ namespace Share.Net.WebSockets
                 m_SubProtocol = value;
                 m_SecWebSocketProtocols = 
                     value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList();                 
+            }
+            else
+            {
+                m_SubProtocol = string.Empty;
             }
         }
     }

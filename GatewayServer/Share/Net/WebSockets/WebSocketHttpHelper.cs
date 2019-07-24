@@ -3,6 +3,8 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 
 using Share.Logs;
+using System.Security.Cryptography;
+using System;
 
 namespace Share.Net.WebSockets
 {
@@ -42,17 +44,25 @@ namespace Share.Net.WebSockets
             return string.Empty;
         }
 
-        public static bool IsWebSocketUpgradeRequest(string http_header)
+        //public static bool IsWebSocketUpgradeRequest(string http_header)
+        //{
+        //    Regex head_regex = new Regex(HTTP_HEADER_REGEX, RegexOptions.IgnoreCase);
+        //    Match head_match = head_regex.Match(http_header);
+
+        //    if (head_match.Success)
+        //    {
+        //        Regex upgrade_regex = new Regex("Upgrade: websocket", RegexOptions.IgnoreCase)
+        //    }
+
+        //    return false;
+        //}
+
+        public static string CalSecWebSocketAccept(string sec_websocket_key)
         {
-            Regex head_regex = new Regex(HTTP_HEADER_REGEX, RegexOptions.IgnoreCase);
-            Match head_match = head_regex.Match(http_header);
-
-            if (head_match.Success)
-            {
-                Regex upgrade_regex = new Regex("Upgrade: websocket", RegexOptions.IgnoreCase)
-            }
-
-            return false;
+            const string web_socket_guid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+            string temp = sec_websocket_key + web_socket_guid;
+            byte[] hash_value = SHA1.Create().ComputeHash(Encoding.UTF8.GetBytes(temp));
+            return Convert.ToBase64String(hash_value);
         }
 
 
