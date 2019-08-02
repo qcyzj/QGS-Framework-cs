@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Share.Net.WebSocket
+namespace Share.Net.WebSockets
 {
     class WebSocketClient
     {

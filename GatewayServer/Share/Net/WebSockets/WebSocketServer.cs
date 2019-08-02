@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 using Share.Logs;
 using Share.Config;
+using System.Text;
+using System.Text.RegularExpressions;
 
-namespace Share.Net.WebSocket
+namespace Share.Net.WebSockets
 {
     public class WebSocketServer
     {
@@ -21,6 +24,7 @@ namespace Share.Net.WebSocket
             m_Stopping = false;
         }
 
+        public string Encodinng { get; private set; }
 
         public async Task StartAsync()
         {
@@ -76,13 +80,38 @@ namespace Share.Net.WebSocket
                 return;
             }
 
-
-            NetworkStream stream = client.GetStream();
-
-            while (true)
+            try
             {
+                NetworkStream stream = client.GetStream();
+                WebSocketContextImpl context = ReadHttpHeaderFromStream(stream);
 
+                if (context.IsWebSocketRequest)
+                {
+                    WebSocket websocket = context.WebSocket;
+
+                    while (true)
+                    {
+                        response;
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                LogManager.Error("ProcessTcpClientAsync error: ", ex);
+            }
+            finally
+            {
+                client.Client.Close();
+                client.Close();
+            }
+        }
+
+        private WebSocketContextImpl ReadHttpHeaderFromStream(NetworkStream stream)
+        {
+            string header = WebSocketHttpHelper.ReadHttpHeader(stream);
+
+
+            return new WebSocketContextImpl();
         }
     }
 }
