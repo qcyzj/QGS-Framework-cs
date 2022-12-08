@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="IronPython" Version="2.7.9" />
     <PackageReference Include="MySql.Data" Version="8.0.14" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="NLua" Version="1.4.4" />
     <PackageReference Include="StackExchange.Redis" Version="2.0.519" />
   </ItemGroup>
